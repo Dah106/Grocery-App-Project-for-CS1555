@@ -1,0 +1,10 @@
+Note for Danchen
+
+The data must be dynamic and not pulled from a data file. For example, when
+you execute the jdbc application, it should ask the user how many customers it would like,
+how many warehouses, how many items, etc... It doesnt have to include a question for every table
+because some tables depend on other tables. For example, you just need to ask as many questions that will allow
+the database to be filled so you dont need all of the details.
+
+Also, I got other details. we dont need triggers. We just have to make sure that the JDBC application inserts
+data that is consistent across all tables.
