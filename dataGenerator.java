@@ -475,9 +475,8 @@ public class dataGenerator
     	StringBuilder strBuilder = new StringBuilder();
 
         int randomStreetNumber = generateRandomNumberWithinRange(MIN_STREET_NUMBER, MAX_STREET_NUMBER);
-        strBuilder.append(" ");
         strBuilder.append(randomStreetNumber); //Implicitly convert int to string
-
+        strBuilder.append(" ");
     	int maxStreetLength = generateRandomNumberWithinRange(MIN_NAME_LENGTH, MAX_NAME_LENGTH);
     	for(int i = 0; i < maxStreetLength;i++)
     	{	
