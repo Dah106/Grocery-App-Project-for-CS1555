@@ -1,10 +1,4 @@
-Note for Danchen
+For data generation, we abstracted each level of the database. Using hash maps and an iterative structure, we were able to populate the data across all of the tables by utilizing the top-down approach. In order to generate the data for each attribute, we used Java's random class tocreate data that resembled the domain of each attribute. For example, we used a random street number, combined with a random street name, then appended to the typical address type (Rd., Ln., St., etc.), and finally related that address to a state capital and state with a random zip code. Within the top-down approach, a hash map stored all warehouse, which contained their distribution stations, which contained customers, which contained their orders, consisting of line items and then pointing to items that are also represented at the warehouse level. This nested approach allowed for dependencies outlined in the milestone write-up.
 
-The data must be dynamic and not pulled from a data file. For example, when
-you execute the jdbc application, it should ask the user how many customers it would like,
-how many warehouses, how many items, etc... It doesnt have to include a question for every table
-because some tables depend on other tables. For example, you just need to ask as many questions that will allow
-the database to be filled so you dont need all of the details.
-
-Also, I got other details. we dont need triggers. We just have to make sure that the JDBC application inserts
-data that is consistent across all tables.
+Assumptions made:
+At first we assumed that the data did not need to be consistent across all of the tables because the data population specs in the assignment sheet implied that it was not necessary to do so, thus we generated random values to insert into the attributes. However, after class discussion on the final day of the milestone, we learned that there should be consistency across the tables. Unfortunately, due to the deadline, we were unable, after multiple attempts, to successfully update our system to fit the consistency constraints.
