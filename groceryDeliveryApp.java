@@ -88,16 +88,9 @@ public class groceryDeliveryApp {
 		System.out.print("Please enter the number of line items for the system: ");
 		myDataGenerator.numOfLineItems = reader.nextInt();
 
- 		myDataGenerator.createWarehouseData();
- 		myDataGenerator.createDistributionStationData();
- 		myDataGenerator.createCustomerData();
- 		myDataGenerator.createOrderData();
- 		myDataGenerator.createItemData();
- 		myDataGenerator.createLineItemData();
-
 		reader.close();
 
-
+ 	
 		try{
 	    // Register the oracle driver.  
 	    DriverManager.registerDriver (new oracle.jdbc.driver.OracleDriver());
@@ -114,6 +107,13 @@ public class groceryDeliveryApp {
 		    System.out.println("Error connecting to database.  Machine Error: " +
 				       Ex.toString());
 		}
+
+		myDataGenerator.createWarehouseData();
+ 		myDataGenerator.createDistributionStationData();
+ 		myDataGenerator.createCustomerData();
+ 		myDataGenerator.createOrderData();
+ 		myDataGenerator.createItemData();
+ 		myDataGenerator.createLineItemData();
     }
 
     private void generateInitalData()
@@ -130,16 +130,18 @@ public class groceryDeliveryApp {
 		    query = "insert into warehouses values (?,?,?,?,?,?,?,?)";
 		    prepStatement = connection.prepareStatement(query);
 
-		    for(int i = 0; i < myDataGenerator.numOfWarehouses;i++)
+		    for(int tempWarehouseID = 0;tempWarehouseID < myDataGenerator.numOfWarehouses;tempWarehouseID++)
 		    {	
-		    	int warehouseID = myDataGenerator.myWarehouse[i].warehouseID;
-			    String name = myDataGenerator.myWarehouse[i].name;
-			    String strAddress = myDataGenerator.myWarehouse[i].strAddress;
-			    String cityAddress = myDataGenerator.myWarehouse[i].cityAddress;
-			    String stateAddress = myDataGenerator.myWarehouse[i].stateAddress;
-			    String zipcode = myDataGenerator.myWarehouse[i].zipcode;
-			    double salesTax = myDataGenerator.myWarehouse[i].salesTax;
-			    double salesSum = myDataGenerator.myWarehouse[i].salesSum;
+		    	warehouses tempWarehouse = myDataGenerator.myWarehouse.get(tempWarehouseID);
+		    	
+		    	int warehouseID = tempWarehouse.warehouseID;
+			    String name = tempWarehouse.name;
+			    String strAddress = tempWarehouse.strAddress;
+			    String cityAddress = tempWarehouse.cityAddress;
+			    String stateAddress = tempWarehouse.stateAddress;
+			    String zipcode = tempWarehouse.zipcode;
+			    double salesTax = tempWarehouse.salesTax;
+			    double salesSum = tempWarehouse.salesSum;
 
 			    prepStatement.setInt(1, warehouseID); 
 			    prepStatement.setString(2, name); 
@@ -157,163 +159,229 @@ public class groceryDeliveryApp {
 	      	query = "insert into distStations values (?,?,?,?,?,?,?,?,?)";
 	      	prepStatement = connection.prepareStatement(query);
 
-	      	for(int i = 0; i < myDataGenerator.numOfDistStations;i++)
-	      	{
-	      		int stationID = myDataGenerator.myDistributionStation[i].stationID;
-	      		int warehouseID = myDataGenerator.myDistributionStation[i].warehouseID; 
-				String name = myDataGenerator.myDistributionStation[i].name;
-			    String strAddress = myDataGenerator.myDistributionStation[i].strAddress;
-			    String cityAddress = myDataGenerator.myDistributionStation[i].cityAddress;
-			    String stateAddress = myDataGenerator.myDistributionStation[i].stateAddress;
-			    String zipcode = myDataGenerator.myDistributionStation[i].zipcode;
-			    double salesTax = myDataGenerator.myDistributionStation[i].salesTax;
-			    double salesSum = myDataGenerator.myDistributionStation[i].salesSum;
+	      	for(int tempWarehouseID = 0;tempWarehouseID < myDataGenerator.numOfWarehouses;tempWarehouseID++)
+	      	{	
+	      		warehouses tempWarehouse = myDataGenerator.myWarehouse.get(tempWarehouseID);
 
-			    prepStatement.setInt(1, stationID);
-			    prepStatement.setInt(2, warehouseID); 
-			    prepStatement.setString(3, name); 
-			    prepStatement.setString(4, strAddress); 
-			    prepStatement.setString(5, cityAddress); 
-			    prepStatement.setString(6, stateAddress); 
-			    prepStatement.setString(7, zipcode); 
-			    prepStatement.setDouble(8, salesTax); 
-			    prepStatement.setDouble(9, salesSum); 
+		      	for(int tempStationID = 0;tempStationID < myDataGenerator.numOfDistStations;tempStationID++)
+		      	{	
+		      		 distStations tempDistStation = tempWarehouse.myStations.get(tempStationID);
 
-		      	prepStatement.executeUpdate();
+		      		int stationID = tempDistStation.stationID;
+		      		int warehouseID = tempDistStation.warehouseID; 
+					String name = tempDistStation.name;
+				    String strAddress = tempDistStation.strAddress;
+				    String cityAddress = tempDistStation.cityAddress;
+				    String stateAddress = tempDistStation.stateAddress;
+				    String zipcode = tempDistStation.zipcode;
+				    double salesTax = tempDistStation.salesTax;
+				    double salesSum = tempDistStation.salesSum;
+
+				    prepStatement.setInt(1, stationID);
+				    prepStatement.setInt(2, warehouseID); 
+				    prepStatement.setString(3, name); 
+				    prepStatement.setString(4, strAddress); 
+				    prepStatement.setString(5, cityAddress); 
+				    prepStatement.setString(6, stateAddress); 
+				    prepStatement.setString(7, zipcode); 
+				    prepStatement.setDouble(8, salesTax); 
+				    prepStatement.setDouble(9, salesSum); 
+
+			      	prepStatement.executeUpdate();
+		      	}
 	      	}
 
 	      	/* table 'customers' has nine attributes */
 	      	query = "insert into customers values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 	      	prepStatement = connection.prepareStatement(query);
 
-	      	for(int i = 0; i < myDataGenerator.numOfCustomers;i++)
-	      	{
-	      		int custID = myDataGenerator.myCustomer[i].custID;
-	      		int stationID = myDataGenerator.myCustomer[i].stationID; 
-	      		int warehouseID = myDataGenerator.myCustomer[i].warehouseID; 
-				String fname = myDataGenerator.myCustomer[i].fname;
-			    String MI = myDataGenerator.myCustomer[i].MI;
-			    String lname = myDataGenerator.myCustomer[i].lname;
-			    String strAddress = myDataGenerator.myCustomer[i].strAddress;
-			    String cityAddress = myDataGenerator.myCustomer[i].cityAddress;
-			    String stateAddress = myDataGenerator.myCustomer[i].stateAddress;
-			    String zipcode = myDataGenerator.myCustomer[i].zipcode;
-			    String phone = myDataGenerator.myCustomer[i].phone;
+	      	for(int tempWarehouseID = 0;tempWarehouseID < myDataGenerator.numOfWarehouses;tempWarehouseID++)
+	      	{	
+	      		warehouses tempWarehouse = myDataGenerator.myWarehouse.get(tempWarehouseID);
 
-			    long accountOpenDate = myDataGenerator.myCustomer[i].accountOpenDate;
-			    java.sql.Date dateRegistered = new java.sql.Date (accountOpenDate);
-			    
-			    double discount = myDataGenerator.myCustomer[i].discount;
-			    double balance = myDataGenerator.myCustomer[i].balance;
-			    double paid = myDataGenerator.myCustomer[i].paid;
-			    int paymentCount = myDataGenerator.myCustomer[i].paymentCount;
-			    int deliveryCount = myDataGenerator.myCustomer[i].deliveryCount;
+		      	for(int tempStationID = 0;tempStationID < myDataGenerator.numOfDistStations;tempStationID++)
+		      	{	
+		      		 distStations tempDistStation = tempWarehouse.myStations.get(tempStationID);
 
-			    
-			    prepStatement.setInt(1, custID);
-			    prepStatement.setInt(2, stationID); 
-			    prepStatement.setInt(3, warehouseID); 
-			    prepStatement.setString(4, fname); 
-			    prepStatement.setString(5, MI); 
-			    prepStatement.setString(6, lname); 
-			    prepStatement.setString(7, strAddress); 
-			    prepStatement.setString(8, cityAddress); 
-			    prepStatement.setString(9, stateAddress); 
-			    prepStatement.setString(10, zipcode);
-			    prepStatement.setString(11, phone); 
-			    prepStatement.setDate(12, dateRegistered); 
-			    prepStatement.setDouble(13, discount); 
-			    prepStatement.setDouble(14, balance); 
-			    prepStatement.setDouble(15, paid); 
-			    prepStatement.setInt(16, paymentCount); 
-			    prepStatement.setInt(17, deliveryCount); 
+			      	for(int tempCustomerID = 0; tempCustomerID < myDataGenerator.numOfCustomers;tempCustomerID++)
+			      	{	
+			      		customers tempCustomer = tempDistStation.myCustomers.get(tempCustomerID);
 
-		      	prepStatement.executeUpdate();
-	      	}
+			      		int custID = tempCustomer.custID;
+			      		int stationID = tempCustomer.stationID; 
+			      		int warehouseID = tempCustomer.warehouseID; 
+						String fname = tempCustomer.fname;
+					    String MI = tempCustomer.MI;
+					    String lname = tempCustomer.lname;
+					    String strAddress = tempCustomer.strAddress;
+					    String cityAddress = tempCustomer.cityAddress;
+					    String stateAddress = tempCustomer.stateAddress;
+					    String zipcode = tempCustomer.zipcode;
+					    String phone = tempCustomer.phone;
+
+					    long accountOpenDate = tempCustomer.accountOpenDate;
+					    java.sql.Date dateRegistered = new java.sql.Date (accountOpenDate);
+					    
+					    double discount = tempCustomer.discount;
+					    double balance = tempCustomer.balance;
+					    double paid = tempCustomer.paid;
+					    int paymentCount = tempCustomer.paymentCount;
+					    int deliveryCount = tempCustomer.deliveryCount;
+
+					    
+					    prepStatement.setInt(1, custID);
+					    prepStatement.setInt(2, stationID); 
+					    prepStatement.setInt(3, warehouseID); 
+					    prepStatement.setString(4, fname); 
+					    prepStatement.setString(5, MI); 
+					    prepStatement.setString(6, lname); 
+					    prepStatement.setString(7, strAddress); 
+					    prepStatement.setString(8, cityAddress); 
+					    prepStatement.setString(9, stateAddress); 
+					    prepStatement.setString(10, zipcode);
+					    prepStatement.setString(11, phone); 
+					    prepStatement.setDate(12, dateRegistered); 
+					    prepStatement.setDouble(13, discount); 
+					    prepStatement.setDouble(14, balance); 
+					    prepStatement.setDouble(15, paid); 
+					    prepStatement.setInt(16, paymentCount); 
+					    prepStatement.setInt(17, deliveryCount); 
+
+				      	prepStatement.executeUpdate();
+			      	}
+			    }
+			}
 
 
 	      	query = "insert into orders values (?,?,?,?,?,?,?)";
 	      	prepStatement = connection.prepareStatement(query);
-
-	      	for(int i = 0; i < myDataGenerator.numOfOrders;i++)
+	      	for(int tempWarehouseID = 0;tempWarehouseID < myDataGenerator.numOfWarehouses;tempWarehouseID++)
 	      	{	
-	      		int orderID = myDataGenerator.myOrder[i].orderID;
-	      		int custID = myDataGenerator.myOrder[i].custID;
-	      		int stationID = myDataGenerator.myOrder[i].stationID;
-	      		int warehouseID = myDataGenerator.myOrder[i].warehouseID; 
+	      		warehouses tempWarehouse = myDataGenerator.myWarehouse.get(tempWarehouseID);
 
-				long dateOrderPlaced = myDataGenerator.myOrder[i].orderPlaceDate;
-			    java.sql.Date orderPlaceDate = new java.sql.Date (dateOrderPlaced);
+		      	for(int tempStationID = 0;tempStationID < myDataGenerator.numOfDistStations;tempStationID++)
+		      	{	
+		      		 distStations tempDistStation = tempWarehouse.myStations.get(tempStationID);
 
-			    int completed = myDataGenerator.myOrder[i].completed;
-			    int lineItemCount = myDataGenerator.myOrder[i].lineItemCount;
+			      	for(int tempCustomerID = 0; tempCustomerID < myDataGenerator.numOfCustomers;tempCustomerID++)
+			      	{	
+			      		customers tempCustomer = tempDistStation.myCustomers.get(tempCustomerID);
+
+				      	for(int tempOrderID = 0; tempOrderID < myDataGenerator.numOfOrders;tempOrderID++)
+				      	{	
+				      		orders tempOrder = tempCustomer.myOrders.get(tempOrderID);
+
+				      		int orderID = tempOrder.orderID;
+				      		int custID = tempOrder.custID;
+				      		int stationID = tempOrder.stationID;
+				      		int warehouseID = tempOrder.warehouseID; 
+
+							long dateOrderPlaced = tempOrder.orderPlaceDate;
+						    java.sql.Date orderPlaceDate = new java.sql.Date (dateOrderPlaced);
+
+						    int completed = tempOrder.completed;
+						    int lineItemCount = tempOrder.lineItemCount;
 
 
-			    prepStatement.setInt(1, orderID);
-			    prepStatement.setInt(2, custID); 
-			    prepStatement.setInt(3, stationID); 
-			    prepStatement.setInt(4, warehouseID); 
-			    prepStatement.setDate(5, orderPlaceDate); 
-			    prepStatement.setInt(6, completed); 
-			    prepStatement.setInt(7, lineItemCount);
+						    prepStatement.setInt(1, orderID);
+						    prepStatement.setInt(2, custID); 
+						    prepStatement.setInt(3, stationID); 
+						    prepStatement.setInt(4, warehouseID); 
+						    prepStatement.setDate(5, orderPlaceDate); 
+						    prepStatement.setInt(6, completed); 
+						    prepStatement.setInt(7, lineItemCount);
 
-			    prepStatement.executeUpdate();
-	      	}
+						    prepStatement.executeUpdate();
+				      	}
+				    }
+				}
+			}
+
 
 	      	query = "insert into items values (?,?,?,?,?,?,?)";
 	      	prepStatement = connection.prepareStatement(query);
 
-	      	for(int i = 0; i < myDataGenerator.numOfItems;i++)
-	      	{		
-	      		int itemID = myDataGenerator.myItem[i].itemID;
-	      		int warehouseID = myDataGenerator.myItem[i].warehouseID;
-	      		String name = myDataGenerator.myItem[i].name;
-	      		double price = myDataGenerator.myItem[i].price;
-	      		int stock = myDataGenerator.myItem[i].stock;
-	      		int soldCount = myDataGenerator.myItem[i].soldCount;
-			    int orderCount = myDataGenerator.myItem[i].orderCount; 
+	      	for(int tempWarehouseID = 0;tempWarehouseID < myDataGenerator.numOfWarehouses;tempWarehouseID++)
+	      	{	
+	      		warehouses tempWarehouse = myDataGenerator.myWarehouse.get(tempWarehouseID);
 
-			  
-			    prepStatement.setInt(1, itemID);
-			    prepStatement.setInt(2, warehouseID); 
-			    prepStatement.setString(3, name); 
-			    prepStatement.setDouble(4, price); 
-			    prepStatement.setInt(5, stock); 
-			    prepStatement.setInt(6, soldCount); 
-			    prepStatement.setInt(7, orderCount);
+		      	for(int tempItemID = 0;tempItemID < myDataGenerator.numOfItems;tempItemID++)
+		      	{	
+		      		items tempItem = tempWarehouse.myItems.get(tempItemID);	
+		      		
+		      		int itemID = tempItem.itemID;
+		      		int warehouseID = tempItem.warehouseID;
+		      		String name = tempItem.name;
+		      		double price = tempItem.price;
+		      		int stock = tempItem.stock;
+		      		int soldCount = tempItem.soldCount;
+				    int orderCount = tempItem.orderCount; 
 
-			    prepStatement.executeUpdate();
+				  
+				    prepStatement.setInt(1, itemID);
+				    prepStatement.setInt(2, warehouseID); 
+				    prepStatement.setString(3, name); 
+				    prepStatement.setDouble(4, price); 
+				    prepStatement.setInt(5, stock); 
+				    prepStatement.setInt(6, soldCount); 
+				    prepStatement.setInt(7, orderCount);
+
+				    prepStatement.executeUpdate();
+	      		}
 	      	}
 
 	      	query = "insert into lineItems values (?,?,?,?,?,?,?,?,?)";
 	      	prepStatement = connection.prepareStatement(query);
 
-	      	for(int i = 0; i < myDataGenerator.numOfItems;i++)
-	      	{		
-	      		int lineItemID = myDataGenerator.myLineItem[i].lineItemID;
-	      		int itemID = myDataGenerator.myLineItem[i].itemID;
-	      		int orderID = myDataGenerator.myLineItem[i].orderID;
-	      		int custID = myDataGenerator.myLineItem[i].custID;
-	      		int stationID = myDataGenerator.myLineItem[i].stationID;
-	      		int warehouseID = myDataGenerator.myLineItem[i].warehouseID;
-	      		int quantity = myDataGenerator.myLineItem[i].quantity;
-			    double amountDue = myDataGenerator.myLineItem[i].amountDue; 
+	      	for(int tempWarehouseID = 0;tempWarehouseID < myDataGenerator.numOfWarehouses;tempWarehouseID++)
+	      	{	
+	      		warehouses tempWarehouse = myDataGenerator.myWarehouse.get(tempWarehouseID);
 
-				long dateDelivered = myDataGenerator.myLineItem[i].deliveryDate;
-			    java.sql.Date orderPlaceDate = new java.sql.Date (dateDelivered);
-			  
-			    prepStatement.setInt(1, lineItemID);
-			    prepStatement.setInt(2, itemID); 
-			    prepStatement.setInt(3, orderID); 
-			    prepStatement.setInt(4, custID); 
-			    prepStatement.setInt(5, stationID); 
-			    prepStatement.setInt(6, warehouseID); 
-			    prepStatement.setInt(7, quantity);
-			    prepStatement.setDouble(8, amountDue);
-			    prepStatement.setDate(9, orderPlaceDate);
+		      	for(int tempStationID = 0;tempStationID < myDataGenerator.numOfDistStations;tempStationID++)
+		      	{	
+		      		 distStations tempDistStation = tempWarehouse.myStations.get(tempStationID);
 
-			    prepStatement.executeUpdate();
-	      	}
+			      	for(int tempCustomerID = 0; tempCustomerID < myDataGenerator.numOfCustomers;tempCustomerID++)
+			      	{	
+			      		customers tempCustomer = tempDistStation.myCustomers.get(tempCustomerID);
+
+				      	for(int tempOrderID = 0; tempOrderID < myDataGenerator.numOfOrders;tempOrderID++)
+				      	{	
+				      		orders tempOrder = tempCustomer.myOrders.get(tempOrderID);
+				      		
+					      	for(int tempLineItemID = 0; tempLineItemID < myDataGenerator.numOfLineItems;tempLineItemID++)
+					      	{		
+					      		lineItems tempLineItem = tempOrder.myLineItems.get(tempLineItemID);
+
+					      		int lineItemID = tempLineItem.lineItemID;
+					      		int itemID = tempLineItem.itemID;
+					      		int orderID = tempLineItem.orderID;
+					      		int custID = tempLineItem.custID;
+					      		int stationID = tempLineItem.stationID;
+					      		int warehouseID = tempLineItem.warehouseID;
+					      		int quantity = tempLineItem.quantity;
+							    double amountDue = tempLineItem.amountDue; 
+
+								long dateDelivered = tempLineItem.deliveryDate;
+							    java.sql.Date orderPlaceDate = new java.sql.Date (dateDelivered);
+							  
+							    prepStatement.setInt(1, lineItemID);
+							    prepStatement.setInt(2, itemID); 
+							    prepStatement.setInt(3, orderID); 
+							    prepStatement.setInt(4, custID); 
+							    prepStatement.setInt(5, stationID); 
+							    prepStatement.setInt(6, warehouseID); 
+							    prepStatement.setInt(7, quantity);
+							    prepStatement.setDouble(8, amountDue);
+							    prepStatement.setDate(9, orderPlaceDate);
+
+							    prepStatement.executeUpdate();
+					      	}
+					    }
+					}
+				}
+			}
+
 
 		    /*
 		     * The preparedStatement can be and should be reused instead of creating a new object.

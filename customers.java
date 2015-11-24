@@ -13,6 +13,7 @@
 	Useful sql commands:
     check what tables you have in the database: select table_name from user_tables;
 */
+import java.util.ArrayList;
 
 public class customers
 {
@@ -34,6 +35,7 @@ public class customers
 	protected double paid;
 	protected int paymentCount;
 	protected int deliveryCount;
+	protected ArrayList<orders> myOrders;
 
 	protected customers()
 	{	
@@ -54,5 +56,6 @@ public class customers
 		this.paid = 0;
 		this.paymentCount = 0;
 		this.deliveryCount = 0;
+		myOrders = new ArrayList<orders>();
 	}
 }

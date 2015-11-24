@@ -13,9 +13,21 @@
 	Useful sql commands:
     check what tables you have in the database: select table_name from user_tables;
 */
+import java.util.ArrayList;
 
 public class warehouses
-{
+{	
+	protected int warehouseID;
+	protected String name;
+	protected String strAddress;
+	protected String cityAddress;
+	protected String stateAddress;
+	protected String zipcode;
+	protected double salesTax;
+	protected double salesSum;
+	protected ArrayList<distStations> myStations;
+	protected ArrayList<items> myItems;
+
 	protected warehouses()
 	{
 		this.warehouseID = 0;
@@ -26,14 +38,10 @@ public class warehouses
 		this.zipcode = "12345";
 		this.salesTax = 50;
 		this.salesSum = 10000;
+		myStations = new ArrayList<distStations>();
+		myItems = new ArrayList<items>();
+		
 	}
 
-	protected int warehouseID;
-	protected String name;
-	protected String strAddress;
-	protected String cityAddress;
-	protected String stateAddress;
-	protected String zipcode;
-	protected double salesTax;
-	protected double salesSum;
+	
 }
