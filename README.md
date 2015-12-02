@@ -30,3 +30,29 @@ Please enter the number of line items for the system:
 
 - once program is run, open new unixs shell and access sqlplus
 - in sqlplus, run program run.sql to view contents of db
+
+########################################################################
+
+Modified table schema for Milestone 2:
+
+Add table "stock" to track the stock of each item per warehouse
+
+Program User Input is changed to adapt to Milestone 2 requirement
+
+- in program, allows for anonymity and scalability:	
+
+Please enter the username: 
+
+Please enter the password: 
+
+Please enter the number of warehouses for the system: 
+
+Please enter the number of distribution stations per warehouse: 
+
+Please enter the number of customers per distribution station: 
+
+Please enter the number of orders per customer: 
+
+Please enter the number of items per warehouse: 
+
+Please enter the number of line items per order: 

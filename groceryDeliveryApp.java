@@ -73,19 +73,19 @@ public class groceryDeliveryApp {
 		System.out.print("Please enter the number of warehouses for the system: ");
 		myDataGenerator.numOfWarehouses = reader.nextInt();
 
-		System.out.print("Please enter the number of distribution stations for the system: ");
+		System.out.print("Please enter the number of distribution stations per warehouse: ");
 		myDataGenerator.numOfDistStations = reader.nextInt();
 
-		System.out.print("Please enter the number of customers for the system: ");
+		System.out.print("Please enter the number of customers per distribution station: ");
 		myDataGenerator.numOfCustomers = reader.nextInt();
 
-		System.out.print("Please enter the number of orders for the system: ");
+		System.out.print("Please enter the number of orders per customer: ");
 		myDataGenerator.numOfOrders = reader.nextInt();
 
-		System.out.print("Please enter the number of items for the system: ");
+		System.out.print("Please enter the number of items per warehouse: ");
 		myDataGenerator.numOfItems = reader.nextInt();
 
-		System.out.print("Please enter the number of line items for the system: ");
+		System.out.print("Please enter the number of line items per order: ");
 		myDataGenerator.numOfLineItems = reader.nextInt();
 
 		reader.close();
@@ -112,7 +112,7 @@ public class groceryDeliveryApp {
  		myDataGenerator.createDistributionStationData();
  		myDataGenerator.createCustomerData();
  		myDataGenerator.createOrderData();
- 		myDataGenerator.createItemData();
+ 		myDataGenerator.createItemAndData();
  		myDataGenerator.createLineItemData();
     }
 
@@ -298,7 +298,7 @@ public class groceryDeliveryApp {
 			}
 
 
-	      	query = "insert into items values (?,?,?,?,?,?,?)";
+	      	query = "insert into items values (?,?,?,?,?,?)";
 	      	prepStatement = connection.prepareStatement(query);
 
 	      	for(int tempWarehouseID = 0;tempWarehouseID < myDataGenerator.numOfWarehouses;tempWarehouseID++)
@@ -313,7 +313,6 @@ public class groceryDeliveryApp {
 		      		int warehouseID = tempItem.warehouseID;
 		      		String name = tempItem.name;
 		      		double price = tempItem.price;
-		      		int stock = tempItem.stock;
 		      		int soldCount = tempItem.soldCount;
 				    int orderCount = tempItem.orderCount; 
 
@@ -322,9 +321,31 @@ public class groceryDeliveryApp {
 				    prepStatement.setInt(2, warehouseID); 
 				    prepStatement.setString(3, name); 
 				    prepStatement.setDouble(4, price); 
-				    prepStatement.setInt(5, stock); 
-				    prepStatement.setInt(6, soldCount); 
-				    prepStatement.setInt(7, orderCount);
+				    prepStatement.setInt(5, soldCount); 
+				    prepStatement.setInt(6, orderCount);
+
+				    prepStatement.executeUpdate();
+	      		}
+	      	}
+
+	      	query = "insert into stock values (?,?,?)";
+	      	prepStatement = connection.prepareStatement(query);
+
+	      	for(int tempWarehouseID = 0;tempWarehouseID < myDataGenerator.numOfWarehouses;tempWarehouseID++)
+	      	{	
+	      		warehouses tempWarehouse = myDataGenerator.myWarehouse.get(tempWarehouseID);
+
+		      	for(int tempItemID = 0;tempItemID < myDataGenerator.numOfItems;tempItemID++)
+		      	{	
+		      		stock tempStock = tempWarehouse.myStock.get(tempItemID);	
+		      		
+		      		int itemID = tempStock.itemID;
+		      		int warehouseID = tempStock.warehouseID;
+		      		int stock = tempStock.stock;
+
+				    prepStatement.setInt(1, itemID);
+				    prepStatement.setInt(2, warehouseID); 
+				    prepStatement.setInt(3, stock); 
 
 				    prepStatement.executeUpdate();
 	      		}
@@ -497,8 +518,23 @@ public class groceryDeliveryApp {
 					   resultSet.getString(3) + ", " +
 					   resultSet.getDouble(4) + ", " +
 					   resultSet.getInt(5) + ", " +
-					   resultSet.getInt(6) + ", " +
-					   resultSet.getInt(7));
+					   resultSet.getInt(6));
+			counter ++;
+		    }
+
+		    selectQuery = "SELECT * FROM stock"; //sample query
+	    
+	    	resultSet = statement.executeQuery(selectQuery); //run the query on the DB table
+
+		    System.out.println("\nAfter the insert, data is...\n");
+		    counter=1;
+		    System.out.println("Table 'stock': ");
+		    System.out.println("\n");
+		    while(resultSet.next()) {
+			System.out.println("Record " + counter + ": " +
+					   resultSet.getInt(1) + ", " +
+					   resultSet.getInt(2) + ", " +
+					   resultSet.getInt(3));
 			counter ++;
 		    }
 

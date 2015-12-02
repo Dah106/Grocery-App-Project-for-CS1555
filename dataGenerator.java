@@ -281,14 +281,15 @@ public class dataGenerator
         }
     }
 
-    protected void createItemData()
+    protected void createItemAndData()
     {
         for(int tempWarehouseID = 0;tempWarehouseID < numOfWarehouses;tempWarehouseID++)
         {   
             warehouses tempWarehouse = myWarehouse.get(tempWarehouseID);
 
             for(int tempItemID = 0;tempItemID < numOfItems;tempItemID++)
-            {
+            {   
+                //create item
                 items tempItem = new items();
                 
                 //Plus 1 to since array index is zero-indexed
@@ -298,14 +299,24 @@ public class dataGenerator
 
                 //Consistency check
                 tempItem.price = generateRandomNumberWithinRangeInDouble(MAX_PRICE);
-                tempItem.stock = generateRandomNumberWithinRange(0, MAX_STOCK_AND_SOLD_AND_ORDER_COUNT);
-
+                
                 //Consistency check
                 tempItem.soldCount = generateRandomNumberWithinRange(0 ,MAX_STOCK_AND_SOLD_AND_ORDER_COUNT);
                 tempItem.orderCount = generateRandomNumberWithinRange(0, MAX_STOCK_AND_SOLD_AND_ORDER_COUNT);
 
                 //update distribution station
                 tempWarehouse.myItems.add(tempItem);
+
+                //create stock
+                stock tempStock = new stock();
+
+                tempStock.itemID = tempItemID + 1;
+                tempStock.warehouseID = tempWarehouseID + 1;
+
+                //Consistency check
+                tempStock.stock = generateRandomNumberWithinRange(0, MAX_STOCK_AND_SOLD_AND_ORDER_COUNT);
+
+                tempWarehouse.myStock.add(tempStock);
             }
 
             //update warehouse
@@ -500,7 +511,7 @@ public class dataGenerator
         testGenerator.createDistributionStationData();
         testGenerator.createCustomerData();
         testGenerator.createOrderData();
-        testGenerator.createItemData();
+        testGenerator.createItemAndData();
         testGenerator.createLineItemData();
 
         System.out.println("\n\n\n");
@@ -628,9 +639,25 @@ public class dataGenerator
                            tempItem.warehouseID + ", " +
                            tempItem.name + ", " +
                            tempItem.price + ", " +
-                           tempItem.stock + ", " +
                            tempItem.soldCount + ", " +
                            tempItem.orderCount);
+            }
+        }
+        
+        System.out.println("\n\n\n");
+
+        for(int tempWarehouseID = 0;tempWarehouseID < testGenerator.numOfWarehouses;tempWarehouseID++)
+        {   
+            warehouses tempWarehouse = testGenerator.myWarehouse.get(tempWarehouseID);
+
+            for(int tempItemID = 0;tempItemID < testGenerator.numOfItems;tempItemID++)
+            {   
+                stock tempStock = tempWarehouse.myStock.get(tempItemID);
+
+                System.out.println("stock: " +
+                           tempStock.itemID + ", " +
+                           tempStock.warehouseID + ", " +
+                           tempStock.stock);
             }
         }
         

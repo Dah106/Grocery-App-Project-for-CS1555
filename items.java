@@ -19,7 +19,6 @@ public class items
 	protected int warehouseID;
 	protected String name;
 	protected double price; 
-	protected int stock;
 	protected int soldCount;
 	protected int orderCount;
 
@@ -29,7 +28,6 @@ public class items
 		this.warehouseID = 0;
 		this.name = "foo";
 		this.price = 0;
-		this.stock = 0;
 		this.soldCount = 0;
 		this.orderCount = 0;
 	}

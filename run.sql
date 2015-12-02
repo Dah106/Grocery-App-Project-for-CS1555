@@ -10,3 +10,4 @@ select * from customers order by custID;
 select * from orders order by orderID;
 select * from items order by itemID;
 select * from lineItems order by lineitemID;
+select * from stock order by itemID;

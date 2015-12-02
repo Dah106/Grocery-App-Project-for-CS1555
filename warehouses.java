@@ -27,6 +27,7 @@ public class warehouses
 	protected double salesSum;
 	protected ArrayList<distStations> myStations;
 	protected ArrayList<items> myItems;
+	protected ArrayList<stock> myStock;
 
 	protected warehouses()
 	{
@@ -40,7 +41,7 @@ public class warehouses
 		this.salesSum = 10000;
 		myStations = new ArrayList<distStations>();
 		myItems = new ArrayList<items>();
-		
+		myStock = new ArrayList<stock>();
 	}
 
 	
