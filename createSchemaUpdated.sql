@@ -4,6 +4,7 @@ drop table customers cascade constraints;
 drop table orders cascade constraints;
 drop table lineItems cascade constraints;
 drop table items cascade constraints;
+drop table stock cascade constraints;
 
 purge recyclebin;
 
