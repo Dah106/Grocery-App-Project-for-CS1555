@@ -1,8 +1,8 @@
 /*
-	Created by Danchen, Muneeb & Jeffery
-	Date created: 16/11/2015 19:59 P.M EST
-	Last modified by 18/11/2015 12:41 A.M EST
-	Purpose: JDBC for CS1555 term project milestone 1
+    Created by Danchen, Muneeb & Jeffery
+    Date created: 16/11/2015 19:59 P.M EST
+    Last modified by 18/11/2015 12:41 A.M EST
+    Purpose: JDBC for CS1555 term project milestone 1
     
     #####################################################################################
     To configure environment:
@@ -26,13 +26,18 @@ import java.text.ParseException;
 import java.text.DecimalFormat;
 
 public class dataGenerator
-{	
-	protected int numOfWarehouses;
-	protected int numOfDistStations;
-	protected int numOfCustomers;
+{   
+    protected int numOfWarehouses;
+    protected int numOfDistStations;
+    protected int numOfCustomers;
     protected int numOfOrders;
     protected int numOfItems;
     protected int numOfLineItems;
+
+    protected int totalNumOfStocks;
+    protected int totalNumOfStations;
+    protected int totalNumOfCustomers;
+    protected int totalNumOfOrders;
     protected int totalNumOfLineItems;
 
     protected ArrayList<stock> myStock;
@@ -43,17 +48,17 @@ public class dataGenerator
     protected ArrayList<distStations> myDistStation;
     protected ArrayList<warehouses> myWarehouse;
 
-	protected final String LEXICON = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    protected final String LEXICON = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-	protected final String[] US_CITIES = {"Montgomery","Juneau","Phoenix","Little Rock",
-		"Sacramento","Denver","Hartford","Dover","Tallahassee","Atlanta","Honolulu","Boise","Springfield",
-		"Indianapolis","Des Moines","Topeka","Frankfort","Baton Rouge","Augusta","Annapolis","Boston",
-		"Lansing","St. Paul","Jackson","Jefferson City","Helena","Lincoln","Carson City","Concord",
-		"Trenton","Santa Fe","Albany","Raleigh","Bismarck","Columbus","Oklahoma City","Salem","Harrisburg",
-		"Providence","Columbia","Pierre","Nashville","Austin","Salt Lake City","Montpelier","Richmond",
-		"Olympia","Charleston","Madison","Cheyenne"};
-	
-	protected final String[] US_STATES = {"AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", 
+    protected final String[] US_CITIES = {"Montgomery","Juneau","Phoenix","Little Rock",
+        "Sacramento","Denver","Hartford","Dover","Tallahassee","Atlanta","Honolulu","Boise","Springfield",
+        "Indianapolis","Des Moines","Topeka","Frankfort","Baton Rouge","Augusta","Annapolis","Boston",
+        "Lansing","St. Paul","Jackson","Jefferson City","Helena","Lincoln","Carson City","Concord",
+        "Trenton","Santa Fe","Albany","Raleigh","Bismarck","Columbus","Oklahoma City","Salem","Harrisburg",
+        "Providence","Columbia","Pierre","Nashville","Austin","Salt Lake City","Montpelier","Richmond",
+        "Olympia","Charleston","Madison","Cheyenne"};
+    
+    protected final String[] US_STATES = {"AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", 
           "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", 
           "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", 
           "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC", 
@@ -80,8 +85,11 @@ public class dataGenerator
 
     protected final int PHONE_NUMBER_LENGTH = 10;
 
-    protected final String BEGIN_TIME = "2000-01-01 00:00:00";
-    protected final String END_TIME = "2015-11-18 00:00:00";
+    protected final String BEGIN_ORDER_TIME = "2015-04-01 00:00:00";
+    protected final String END_ORDER_TIME = "2015-06-18 00:00:00";
+
+    protected final String BEGIN_DELIVERY_TIME = "2015-06-18 00:00:00";
+    protected final String END_DELIVERY_TIME = "2015-12-01 00:00:00";
 
     protected final double MAX_DISCOUNT = 0.99;
     protected final double MAX_BALANCE = 1000; 
@@ -100,16 +108,21 @@ public class dataGenerator
     protected final double MAX_AMOUNT_DUE = 1000;
 
     protected final static DecimalFormat decimalFormat = new DecimalFormat("#.00");
-	
+    
     //Override default constructor
-	protected dataGenerator()
-	{  
-		this.numOfWarehouses = 0;
-		this.numOfDistStations = 0;
-		this.numOfCustomers = 0;
+    protected dataGenerator()
+    {  
+        this.numOfWarehouses = 0;
+        this.numOfDistStations = 0;
+        this.numOfCustomers = 0;
         this.numOfOrders = 0;
         this.numOfItems = 0;
         this.numOfLineItems = 0;
+
+        this.totalNumOfStocks = 0;
+        this.totalNumOfStations = 0;
+        this.totalNumOfCustomers = 0;
+        this.totalNumOfOrders = 0;
         this.totalNumOfLineItems = 0;
 
         this.myStock = new ArrayList<stock>();
@@ -119,35 +132,35 @@ public class dataGenerator
         this.myCustomer = new ArrayList<customers>();
         this.myDistStation = new ArrayList<distStations>();
         this.myWarehouse = new ArrayList<warehouses>();
-	}
+    }
 
-	// protected void createWarehouseData()
+    // protected void createWarehouseData()
  //    {   
 
- //    	for(int tempWarehouseID = 0;tempWarehouseID < numOfWarehouses;tempWarehouseID++)
- //    	{   
+ //     for(int tempWarehouseID = 0;tempWarehouseID < numOfWarehouses;tempWarehouseID++)
+ //     {   
  //            //create warehouse
  //            warehouses tempWarehouse = new warehouses();
             
  //            //Plus 1 to since array index is zero-indexed
  //            tempWarehouse.warehouseID = tempWarehouseID + 1;
- //    		tempWarehouse.name = generateRandomName();
- //    		tempWarehouse.strAddress = generateRandomStreetAddress();
+ //         tempWarehouse.name = generateRandomName();
+ //         tempWarehouse.strAddress = generateRandomStreetAddress();
 
  //            int randomIndex = generateRandomNumberWithinRange(0, LENGTH_OF_US_CITIES - 1) % LENGTH_OF_US_CITIES;
- //    		tempWarehouse.cityAddress = US_CITIES[randomIndex];
- //    		tempWarehouse.stateAddress = US_STATES[randomIndex];
+ //         tempWarehouse.cityAddress = US_CITIES[randomIndex];
+ //         tempWarehouse.stateAddress = US_STATES[randomIndex];
 
- //    		tempWarehouse.zipcode = generateRandomZipcode();
+ //         tempWarehouse.zipcode = generateRandomZipcode();
 
- //    		tempWarehouse.salesTax = generateRandomSalesTax();
+ //         tempWarehouse.salesTax = generateRandomSalesTax();
 
  //            //Consistency check
- //    		tempWarehouse.salesSum = generateRandomNumberWithinRangeInDouble(MAX_SALES_SUM);
+ //         tempWarehouse.salesSum = generateRandomNumberWithinRangeInDouble(MAX_SALES_SUM);
 
  //            //update warehouse per system
  //            myWarehouse.add(tempWarehouse);
- //    	}
+ //     }
  //    }
 
  //    protected void createDistributionStationData()
@@ -225,7 +238,7 @@ public class dataGenerator
 
  //                    tempCustomer.zipcode = generateRandomZipcode();
  //                    tempCustomer.phone = generateRandomPhone();
- //                    tempCustomer.accountOpenDate = generateRandomTimeBetweenTwoDates(BEGIN_TIME, END_TIME);
+ //                    tempCustomer.accountOpenDate = generateRandomTimeBetweenTwoDates(BEGIN_DELIVERY_TIME, END_ORDER_TIME);
  //                    tempCustomer.discount = generateRandomNumberWithinRangeInDouble(MAX_DISCOUNT);
  //                    tempCustomer.balance = generateRandomNumberWithinRangeInDouble(MAX_BALANCE);
                     
@@ -250,51 +263,53 @@ public class dataGenerator
  //        }
  //    }
 
- //    protected void createOrderData()
- //    {
- //        for(int tempWarehouseID = 0;tempWarehouseID < numOfWarehouses;tempWarehouseID++)
- //        {
- //            warehouses tempWarehouse = myWarehouse.get(tempWarehouseID);
+    protected void createOrderData()
+    {
+        totalNumOfOrders = numOfOrders*numOfCustomers*numOfDistStations*numOfWarehouses;
 
- //            for(int tempStationID = 0;tempStationID < numOfDistStations;tempStationID++)
- //            {
- //                distStations tempDistStation = tempWarehouse.myStations.get(tempStationID);
- //                double tempDistStationSalesSum = tempDistStation.salesSum;
+        int resetOrderID = 0;
+        int resetCustomerID = 0;
+        int resetStationID = 0;
+        int resetWarehouseID = 0;
 
- //                for(int tempCustomerID = 0;tempCustomerID < numOfCustomers;tempCustomerID++)
- //                {   
- //                    customers tempCustomer = tempDistStation.myCustomers.get(tempCustomerID);
+        for(int tempOrderID = 0;tempOrderID < totalNumOfOrders;tempOrderID++)
+        {
 
- //                    for(int tempOrderID = 0;tempOrderID < numOfOrders;tempOrderID++)
- //                    {
- //                        orders tempOrder = new orders();
+            if(resetOrderID == numOfOrders)
+            {
+                resetOrderID = 0;
+                resetCustomerID++;
+            }
 
- //                        //Plus 1 to since array index is zero-indexed
- //                        tempOrder.orderID = tempOrderID + 1;
- //                        tempOrder.custID = tempCustomerID + 1;
- //                        tempOrder.stationID = tempStationID + 1;
- //                        tempOrder.warehouseID = tempWarehouseID + 1;
+            if(resetCustomerID == numOfCustomers)
+            {
+                resetCustomerID = 0;
+                resetStationID++;
+            }
 
- //                        tempOrder.orderPlaceDate = generateRandomTimeBetweenTwoDates(BEGIN_TIME, END_TIME);
- //                        tempOrder.completed = generateRandomNumberWithinRange(0, MAX_COMPLETE_COUNT);
- //                        tempOrder.lineItemCount = generateRandomNumberWithinRange(0, MAX_LINEITEM_COUNT);
+            if(resetStationID == numOfDistStations)
+            {
+                resetStationID = 0;
+                resetWarehouseID++;
+            }
 
- //                        //update order per customer
- //                        tempCustomer.myOrders.add(tempOrder);
- //                    }
+            orders tempOrder = new orders();
 
- //                    //update customer per distribution station
- //                    tempDistStation.myCustomers.set(tempCustomerID, tempCustomer);
- //                }
+            tempOrder.orderID = resetOrderID;
+            tempOrder.custID = resetCustomerID;
+            tempOrder.stationID = resetStationID;
+            tempOrder.warehouseID = resetWarehouseID;
 
- //                //update distribution station per warehouse
- //                tempWarehouse.myStations.set(tempStationID, tempDistStation);
- //            }
+            tempOrder.orderPlaceDate = generateRandomTimeBetweenTwoDates(BEGIN_ORDER_TIME, END_ORDER_TIME);
+            tempOrder.completed = 1;
+            tempOrder.lineItemCount = numOfLineItems;
 
- //            //update warehouse
- //            myWarehouse.set(tempWarehouseID, tempWarehouse);
- //        }
- //    }
+            //update order per customer
+            myOrder.add(tempOrder);
+
+            resetOrderID++;
+        }
+    }
 
     protected void createItemData()
     {
@@ -320,7 +335,6 @@ public class dataGenerator
         totalNumOfLineItems = numOfLineItems*numOfOrders*numOfCustomers*numOfDistStations*numOfWarehouses;
 
         int resetLineItemID = 0;
-
         int resetOrderID = 0;
         int resetCustomerID = 0;
         int resetStationID = 0;
@@ -367,7 +381,7 @@ public class dataGenerator
             tempLineItem.quantity = generateRandomNumberWithinRange(1, MAX_QUANTITY);;
 
             tempLineItem.amountDue = myItem.get(tempLineItem.itemID).price * tempLineItem.quantity;
-            tempLineItem.deliveryDate = generateRandomTimeBetweenTwoDates(BEGIN_TIME, END_TIME);
+            tempLineItem.deliveryDate = generateRandomTimeBetweenTwoDates(BEGIN_DELIVERY_TIME, END_DELIVERY_TIME);
 
             myLineItem.add(tempLineItem);
 
@@ -377,54 +391,54 @@ public class dataGenerator
     }
 
     protected String generateRandomName()
-    {	
-    	StringBuilder strBuilder = new StringBuilder();
-    	
-    	int maxNameLength = generateRandomNumberWithinRange(MIN_NAME_LENGTH, MAX_NAME_LENGTH);
-    	for(int i = 0; i < maxNameLength;i++)
-    	{	
-    		int randomIndex = generateRandomNumberWithinRange(0, LENGTH_OF_LEXICON - 1);
-    		strBuilder.append(LEXICON.charAt(randomIndex));
-    	}
+    {   
+        StringBuilder strBuilder = new StringBuilder();
+        
+        int maxNameLength = generateRandomNumberWithinRange(MIN_NAME_LENGTH, MAX_NAME_LENGTH);
+        for(int i = 0; i < maxNameLength;i++)
+        {   
+            int randomIndex = generateRandomNumberWithinRange(0, LENGTH_OF_LEXICON - 1);
+            strBuilder.append(LEXICON.charAt(randomIndex));
+        }
 
-    	String result = strBuilder.toString();
-    	return result;
+        String result = strBuilder.toString();
+        return result;
     }
 
     protected String generateRandomStreetAddress()
-    {	
-    	StringBuilder strBuilder = new StringBuilder();
+    {   
+        StringBuilder strBuilder = new StringBuilder();
 
         int randomStreetNumber = generateRandomNumberWithinRange(MIN_STREET_NUMBER, MAX_STREET_NUMBER);
         strBuilder.append(randomStreetNumber); //Implicitly convert int to string
         strBuilder.append(" ");
-    	int maxStreetLength = generateRandomNumberWithinRange(MIN_NAME_LENGTH, MAX_NAME_LENGTH);
-    	for(int i = 0; i < maxStreetLength;i++)
-    	{	
-    		int randomIndex = generateRandomNumberWithinRange(0, LENGTH_OF_LEXICON - 1);
-    		strBuilder.append(LEXICON.charAt(randomIndex));
-    	}
+        int maxStreetLength = generateRandomNumberWithinRange(MIN_NAME_LENGTH, MAX_NAME_LENGTH);
+        for(int i = 0; i < maxStreetLength;i++)
+        {   
+            int randomIndex = generateRandomNumberWithinRange(0, LENGTH_OF_LEXICON - 1);
+            strBuilder.append(LEXICON.charAt(randomIndex));
+        }
 
-    	int randomIndex = generateRandomNumberWithinRange(0, LENGTH_OF_STREET_POSTFIX - 1);
-    	strBuilder.append(" ");
-    	strBuilder.append(STREET_POSTFIX[randomIndex]);
+        int randomIndex = generateRandomNumberWithinRange(0, LENGTH_OF_STREET_POSTFIX - 1);
+        strBuilder.append(" ");
+        strBuilder.append(STREET_POSTFIX[randomIndex]);
 
-    	String result = strBuilder.toString();
-    	return result;
+        String result = strBuilder.toString();
+        return result;
     }
 
     protected String generateRandomZipcode()
-    {	
-    	StringBuilder strBuilder = new StringBuilder();
+    {   
+        StringBuilder strBuilder = new StringBuilder();
 
-    	for(int i = 0; i < ZIPCODE_LENGTH; i++)
-    	{	
-    		int randomNumber = generateRandomNumberWithinRange(0, 9);
-    		strBuilder.append(randomNumber);
-    	}
+        for(int i = 0; i < ZIPCODE_LENGTH; i++)
+        {   
+            int randomNumber = generateRandomNumberWithinRange(0, 9);
+            strBuilder.append(randomNumber);
+        }
 
-    	String result = strBuilder.toString();
-    	return result;
+        String result = strBuilder.toString();
+        return result;
     }
 
     //Make sure sales tax is greater than 0
@@ -435,7 +449,7 @@ public class dataGenerator
         {
             result = generateRandomNumberWithinRangeInDouble(MAX_SALES_TAX);
         }
-    	return result;
+        return result;
     }
 
     protected String generateRandomPhone()
@@ -462,30 +476,30 @@ public class dataGenerator
 
 
     protected long generateRandomTimeBetweenTwoDates(String begin, String end) {
-    	
+        
         long beginTime = Timestamp.valueOf(begin).getTime();
         long endTime = Timestamp.valueOf(end).getTime();
 
-    	long diff = endTime - beginTime + 1;
+        long diff = endTime - beginTime + 1;
 
-    	long result = beginTime + (long) (Math.random() * diff);
-    	return result;
-	}
+        long result = beginTime + (long) (Math.random() * diff);
+        return result;
+    }
 
-	//Inclusive - both low and high
-	protected int generateRandomNumberWithinRange(int low, int high)
-	{
-		Random rGenerator = new Random();
-		int result = rGenerator.nextInt(high - low + 1) + low;
-		return result;
-	}
+    //Inclusive - both low and high
+    protected int generateRandomNumberWithinRange(int low, int high)
+    {
+        Random rGenerator = new Random();
+        int result = rGenerator.nextInt(high - low + 1) + low;
+        return result;
+    }
 
-	protected double generateRandomNumberWithinRangeInDouble(double high)
-	{
-		Random rGenerator = new Random();
-		double result = rGenerator.nextDouble()*high;
-		return result;
-	}
+    protected double generateRandomNumberWithinRangeInDouble(double high)
+    {
+        Random rGenerator = new Random();
+        double result = rGenerator.nextDouble()*high;
+        return result;
+    }
 
     public static void main(String[] args) 
     {   
@@ -503,11 +517,12 @@ public class dataGenerator
 
         testGenerator.createItemData();
         testGenerator.createLineItemData();
-
+        testGenerator.createOrderData();
+        
         // testGenerator.createWarehouseData();
         // testGenerator.createDistributionStationData();
         // testGenerator.createCustomerData();
-        // testGenerator.createOrderData();
+        
         
        
 
@@ -588,38 +603,8 @@ public class dataGenerator
         //     }
         // }
 
-        // System.out.println("\n\n\n");
-
-        // for(int tempWarehouseID = 0;tempWarehouseID < testGenerator.numOfWarehouses;tempWarehouseID++)
-        // {   
-        //     warehouses tempWarehouse = testGenerator.myWarehouse.get(tempWarehouseID);
-
-        //     for(int tempStationID = 0;tempStationID < testGenerator.numOfDistStations;tempStationID++)
-        //     {   
-        //         distStations tempDistStation = tempWarehouse.myStations.get(tempStationID);
-
-        //         for(int tempCustomerID = 0;tempCustomerID < testGenerator.numOfCustomers;tempCustomerID++)
-        //         {   
-        //             customers tempCustomer = tempDistStation.myCustomers.get(tempCustomerID);
-
-        //             for(int tempOrderID = 0;tempOrderID < testGenerator.numOfOrders;tempOrderID++)
-        //             {   
-        //                 orders tempOrder = tempCustomer.myOrders.get(tempOrderID);
-
-        //                 Date dateOrderPlaced = new Date(tempOrder.orderPlaceDate);
-                    
-        //                 System.out.println("orders: " +
-        //                            tempOrder.orderID + ", " +
-        //                            tempOrder.custID + ", " +
-        //                            tempOrder.stationID + ", " +
-        //                            tempOrder.warehouseID + ", " +
-        //                            dateOrderPlaced + ", " +
-        //                            tempOrder.completed + ", " +
-        //                            tempOrder.lineItemCount);
-        //             }
-        //         }
-        //     }
-        // }
+        
+ 
         
         System.out.println("\n\n\n");
 
@@ -655,8 +640,8 @@ public class dataGenerator
         System.out.println("\n\n\n");
 
 
-                        for(int tempLineItemID = 0;tempLineItemID < testGenerator.totalNumOfLineItems;tempLineItemID++)
-                        {   
+        for(int tempLineItemID = 0;tempLineItemID < testGenerator.totalNumOfLineItems;tempLineItemID++)
+        {   
                             lineItems tempLineItem = testGenerator.myLineItem.get(tempLineItemID);
 
                             Date dateDelivered = new Date(tempLineItem.deliveryDate);
@@ -671,10 +656,28 @@ public class dataGenerator
                                        tempLineItem.quantity + ", " +
                                        tempLineItem.amountDue + ", " +
                                        dateDelivered);
-                        }
+        }
 
 
         
+        System.out.println("\n\n\n");
+
+        for(int tempOrderID = 0;tempOrderID < testGenerator.totalNumOfOrders;tempOrderID++)
+        {   
+            orders tempOrder = testGenerator.myOrder.get(tempOrderID);
+
+            Date dateOrderPlaced = new Date(tempOrder.orderPlaceDate);
+                    
+                        System.out.println("orders: " +
+                                   tempOrder.orderID + ", " +
+                                   tempOrder.custID + ", " +
+                                   tempOrder.stationID + ", " +
+                                   tempOrder.warehouseID + ", " +
+                                   dateOrderPlaced + ", " +
+                                   tempOrder.completed + ", " +
+                                   tempOrder.lineItemCount);
+        }
+
         System.out.println("\n\n\n");
     }
 
