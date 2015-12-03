@@ -33,8 +33,15 @@ public class dataGenerator
     protected int numOfOrders;
     protected int numOfItems;
     protected int numOfLineItems;
+    protected int totalNumOfLineItems;
 
-	protected ArrayList<warehouses> myWarehouse;
+    protected ArrayList<stock> myStock;
+    protected ArrayList<items> myItem;
+    protected ArrayList<lineItems> myLineItem;
+    protected ArrayList<orders> myOrder;
+    protected ArrayList<customers> myCustomer;
+    protected ArrayList<distStations> myDistStation;
+    protected ArrayList<warehouses> myWarehouse;
 
 	protected final String LEXICON = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
@@ -103,284 +110,270 @@ public class dataGenerator
         this.numOfOrders = 0;
         this.numOfItems = 0;
         this.numOfLineItems = 0;
+        this.totalNumOfLineItems = 0;
+
+        this.myStock = new ArrayList<stock>();
+        this.myItem = new ArrayList<items>();
+        this.myLineItem = new ArrayList<lineItems>();
+        this.myOrder = new ArrayList<orders>();
+        this.myCustomer = new ArrayList<customers>();
+        this.myDistStation = new ArrayList<distStations>();
         this.myWarehouse = new ArrayList<warehouses>();
 	}
 
-	protected void createWarehouseData()
-    {   
+	// protected void createWarehouseData()
+ //    {   
 
-    	for(int tempWarehouseID = 0;tempWarehouseID < numOfWarehouses;tempWarehouseID++)
-    	{   
-            //create warehouse
-            warehouses tempWarehouse = new warehouses();
+ //    	for(int tempWarehouseID = 0;tempWarehouseID < numOfWarehouses;tempWarehouseID++)
+ //    	{   
+ //            //create warehouse
+ //            warehouses tempWarehouse = new warehouses();
             
-            //Plus 1 to since array index is zero-indexed
-            tempWarehouse.warehouseID = tempWarehouseID + 1;
-    		tempWarehouse.name = generateRandomName();
-    		tempWarehouse.strAddress = generateRandomStreetAddress();
+ //            //Plus 1 to since array index is zero-indexed
+ //            tempWarehouse.warehouseID = tempWarehouseID + 1;
+ //    		tempWarehouse.name = generateRandomName();
+ //    		tempWarehouse.strAddress = generateRandomStreetAddress();
 
-            int randomIndex = generateRandomNumberWithinRange(0, LENGTH_OF_US_CITIES - 1) % LENGTH_OF_US_CITIES;
-    		tempWarehouse.cityAddress = US_CITIES[randomIndex];
-    		tempWarehouse.stateAddress = US_STATES[randomIndex];
+ //            int randomIndex = generateRandomNumberWithinRange(0, LENGTH_OF_US_CITIES - 1) % LENGTH_OF_US_CITIES;
+ //    		tempWarehouse.cityAddress = US_CITIES[randomIndex];
+ //    		tempWarehouse.stateAddress = US_STATES[randomIndex];
 
-    		tempWarehouse.zipcode = generateRandomZipcode();
+ //    		tempWarehouse.zipcode = generateRandomZipcode();
 
-    		tempWarehouse.salesTax = generateRandomSalesTax();
+ //    		tempWarehouse.salesTax = generateRandomSalesTax();
 
-            //Consistency check
-    		tempWarehouse.salesSum = generateRandomNumberWithinRangeInDouble(MAX_SALES_SUM);
+ //            //Consistency check
+ //    		tempWarehouse.salesSum = generateRandomNumberWithinRangeInDouble(MAX_SALES_SUM);
 
-            //update warehouse per system
-            myWarehouse.add(tempWarehouse);
-    	}
-    }
+ //            //update warehouse per system
+ //            myWarehouse.add(tempWarehouse);
+ //    	}
+ //    }
 
-    protected void createDistributionStationData()
-    {
+ //    protected void createDistributionStationData()
+ //    {
 
-        for(int tempWarehouseID = 0;tempWarehouseID < numOfWarehouses;tempWarehouseID++)
-        {   
-            warehouses tempWarehouse = myWarehouse.get(tempWarehouseID);
-            double tempWarehouseSalesSum = tempWarehouse.salesSum;
+ //        for(int tempWarehouseID = 0;tempWarehouseID < numOfWarehouses;tempWarehouseID++)
+ //        {   
+ //            warehouses tempWarehouse = myWarehouse.get(tempWarehouseID);
+ //            double tempWarehouseSalesSum = tempWarehouse.salesSum;
 
-            for(int tempStationID = 0;tempStationID < numOfDistStations;tempStationID++)
-            {   
-                //create distribution station
-                distStations tempDistStation = new distStations();
+ //            for(int tempStationID = 0;tempStationID < numOfDistStations;tempStationID++)
+ //            {   
+ //                //create distribution station
+ //                distStations tempDistStation = new distStations();
                 
-                //Plus 1 to since array index is zero-indexed
-                tempDistStation.stationID = tempStationID + 1;
-                tempDistStation.warehouseID = tempWarehouseID + 1;
+ //                //Plus 1 to since array index is zero-indexed
+ //                tempDistStation.stationID = tempStationID + 1;
+ //                tempDistStation.warehouseID = tempWarehouseID + 1;
                 
-                tempDistStation.name = generateRandomName();
-                tempDistStation.strAddress = generateRandomStreetAddress();
+ //                tempDistStation.name = generateRandomName();
+ //                tempDistStation.strAddress = generateRandomStreetAddress();
 
-                int randomIndex = generateRandomNumberWithinRange(0, LENGTH_OF_US_CITIES - 1) % LENGTH_OF_US_CITIES;
-                tempDistStation.cityAddress = US_CITIES[randomIndex];
-                tempDistStation.stateAddress = US_STATES[randomIndex];
+ //                int randomIndex = generateRandomNumberWithinRange(0, LENGTH_OF_US_CITIES - 1) % LENGTH_OF_US_CITIES;
+ //                tempDistStation.cityAddress = US_CITIES[randomIndex];
+ //                tempDistStation.stateAddress = US_STATES[randomIndex];
 
-                tempDistStation.zipcode = generateRandomZipcode();
-                tempDistStation.salesTax = generateRandomSalesTax();
+ //                tempDistStation.zipcode = generateRandomZipcode();
+ //                tempDistStation.salesTax = generateRandomSalesTax();
 
-                //Consistency check
-                tempDistStation.salesSum = tempWarehouseSalesSum/numOfDistStations;
+ //                //Consistency check
+ //                tempDistStation.salesSum = tempWarehouseSalesSum/numOfDistStations;
 
-                //System.out.println("the size of the dist station list in warehouse " + tempWarehouse + " is " + tempWarehouse.myStations.size());
+ //                //System.out.println("the size of the dist station list in warehouse " + tempWarehouse + " is " + tempWarehouse.myStations.size());
 
-                //update distribution station
-                tempWarehouse.myStations.add(tempDistStation);
-            }
+ //                //update distribution station
+ //                tempWarehouse.myStations.add(tempDistStation);
+ //            }
 
-            //update warehouse
-            myWarehouse.set(tempWarehouseID, tempWarehouse);
-        }
+ //            //update warehouse
+ //            myWarehouse.set(tempWarehouseID, tempWarehouse);
+ //        }
 
-    }
+ //    }
 
-    protected void createCustomerData()
+ //    protected void createCustomerData()
+ //    {
+ //        for(int tempWarehouseID = 0;tempWarehouseID < numOfWarehouses;tempWarehouseID++)
+ //        {
+ //            warehouses tempWarehouse = myWarehouse.get(tempWarehouseID);
+
+ //            for(int tempStationID = 0;tempStationID < numOfDistStations;tempStationID++)
+ //            {
+ //                distStations tempDistStation = tempWarehouse.myStations.get(tempStationID);
+ //                double tempDistStationSalesSum = tempDistStation.salesSum;
+
+ //                for(int tempCustomerID = 0;tempCustomerID < numOfCustomers;tempCustomerID++)
+ //                {
+ //                    //create customer per distribution station
+ //                    customers tempCustomer = new customers();
+
+ //                    //Plus 1 to since array index is zero-indexed
+ //                    tempCustomer.custID = tempCustomerID + 1;
+ //                    tempCustomer.stationID = tempStationID + 1;
+ //                    tempCustomer.warehouseID = tempWarehouseID + 1;
+                    
+
+ //                    tempCustomer.fname = generateRandomName();
+ //                    tempCustomer.MI = String.valueOf(LEXICON.charAt(generateRandomNumberWithinRange(0, LENGTH_OF_LEXICON - 1)));
+ //                    tempCustomer.lname = generateRandomName();
+ //                    tempCustomer.strAddress = generateRandomStreetAddress();
+
+ //                    int randomIndex = generateRandomNumberWithinRange(0, LENGTH_OF_US_CITIES - 1) % LENGTH_OF_US_CITIES;
+ //                    tempCustomer.cityAddress = US_CITIES[randomIndex];
+ //                    tempCustomer.stateAddress = US_STATES[randomIndex];
+
+ //                    tempCustomer.zipcode = generateRandomZipcode();
+ //                    tempCustomer.phone = generateRandomPhone();
+ //                    tempCustomer.accountOpenDate = generateRandomTimeBetweenTwoDates(BEGIN_TIME, END_TIME);
+ //                    tempCustomer.discount = generateRandomNumberWithinRangeInDouble(MAX_DISCOUNT);
+ //                    tempCustomer.balance = generateRandomNumberWithinRangeInDouble(MAX_BALANCE);
+                    
+ //                    //Consistency check
+ //                    tempCustomer.paid = generateRandomNumberWithinRangeInDouble(MAX_PAID_AMOUNT);
+ //                    tempCustomer.paymentCount = generateRandomNumberWithinRange(0, MAX_PAYMENT_COUNT);
+                    
+ //                    tempCustomer.deliveryCount = generateRandomNumberWithinRange(0, MAX_DELIVERY_COUNT);
+                    
+ //                    //System.out.println("the size of the customer list in station " + tempStationID + " is " + tempDistStation.myCustomers.size());
+                    
+ //                    //update customer per distribution station
+ //                    tempDistStation.myCustomers.add(tempCustomer);
+ //                }
+
+ //                //update distribution station per warehouse
+ //                tempWarehouse.myStations.set(tempStationID, tempDistStation);
+ //            }
+
+ //            //update warehouse
+ //            myWarehouse.set(tempWarehouseID, tempWarehouse);
+ //        }
+ //    }
+
+ //    protected void createOrderData()
+ //    {
+ //        for(int tempWarehouseID = 0;tempWarehouseID < numOfWarehouses;tempWarehouseID++)
+ //        {
+ //            warehouses tempWarehouse = myWarehouse.get(tempWarehouseID);
+
+ //            for(int tempStationID = 0;tempStationID < numOfDistStations;tempStationID++)
+ //            {
+ //                distStations tempDistStation = tempWarehouse.myStations.get(tempStationID);
+ //                double tempDistStationSalesSum = tempDistStation.salesSum;
+
+ //                for(int tempCustomerID = 0;tempCustomerID < numOfCustomers;tempCustomerID++)
+ //                {   
+ //                    customers tempCustomer = tempDistStation.myCustomers.get(tempCustomerID);
+
+ //                    for(int tempOrderID = 0;tempOrderID < numOfOrders;tempOrderID++)
+ //                    {
+ //                        orders tempOrder = new orders();
+
+ //                        //Plus 1 to since array index is zero-indexed
+ //                        tempOrder.orderID = tempOrderID + 1;
+ //                        tempOrder.custID = tempCustomerID + 1;
+ //                        tempOrder.stationID = tempStationID + 1;
+ //                        tempOrder.warehouseID = tempWarehouseID + 1;
+
+ //                        tempOrder.orderPlaceDate = generateRandomTimeBetweenTwoDates(BEGIN_TIME, END_TIME);
+ //                        tempOrder.completed = generateRandomNumberWithinRange(0, MAX_COMPLETE_COUNT);
+ //                        tempOrder.lineItemCount = generateRandomNumberWithinRange(0, MAX_LINEITEM_COUNT);
+
+ //                        //update order per customer
+ //                        tempCustomer.myOrders.add(tempOrder);
+ //                    }
+
+ //                    //update customer per distribution station
+ //                    tempDistStation.myCustomers.set(tempCustomerID, tempCustomer);
+ //                }
+
+ //                //update distribution station per warehouse
+ //                tempWarehouse.myStations.set(tempStationID, tempDistStation);
+ //            }
+
+ //            //update warehouse
+ //            myWarehouse.set(tempWarehouseID, tempWarehouse);
+ //        }
+ //    }
+
+    protected void createItemData()
     {
-        for(int tempWarehouseID = 0;tempWarehouseID < numOfWarehouses;tempWarehouseID++)
-        {
-            warehouses tempWarehouse = myWarehouse.get(tempWarehouseID);
 
-            for(int tempStationID = 0;tempStationID < numOfDistStations;tempStationID++)
-            {
-                distStations tempDistStation = tempWarehouse.myStations.get(tempStationID);
-                double tempDistStationSalesSum = tempDistStation.salesSum;
-
-                for(int tempCustomerID = 0;tempCustomerID < numOfCustomers;tempCustomerID++)
-                {
-                    //create customer per distribution station
-                    customers tempCustomer = new customers();
-
-                    //Plus 1 to since array index is zero-indexed
-                    tempCustomer.custID = tempCustomerID + 1;
-                    tempCustomer.stationID = tempStationID + 1;
-                    tempCustomer.warehouseID = tempWarehouseID + 1;
-                    
-
-                    tempCustomer.fname = generateRandomName();
-                    tempCustomer.MI = String.valueOf(LEXICON.charAt(generateRandomNumberWithinRange(0, LENGTH_OF_LEXICON - 1)));
-                    tempCustomer.lname = generateRandomName();
-                    tempCustomer.strAddress = generateRandomStreetAddress();
-
-                    int randomIndex = generateRandomNumberWithinRange(0, LENGTH_OF_US_CITIES - 1) % LENGTH_OF_US_CITIES;
-                    tempCustomer.cityAddress = US_CITIES[randomIndex];
-                    tempCustomer.stateAddress = US_STATES[randomIndex];
-
-                    tempCustomer.zipcode = generateRandomZipcode();
-                    tempCustomer.phone = generateRandomPhone();
-                    tempCustomer.accountOpenDate = generateRandomTimeBetweenTwoDates(BEGIN_TIME, END_TIME);
-                    tempCustomer.discount = generateRandomNumberWithinRangeInDouble(MAX_DISCOUNT);
-                    tempCustomer.balance = generateRandomNumberWithinRangeInDouble(MAX_BALANCE);
-                    
-                    //Consistency check
-                    tempCustomer.paid = generateRandomNumberWithinRangeInDouble(MAX_PAID_AMOUNT);
-                    tempCustomer.paymentCount = generateRandomNumberWithinRange(0, MAX_PAYMENT_COUNT);
-                    
-                    tempCustomer.deliveryCount = generateRandomNumberWithinRange(0, MAX_DELIVERY_COUNT);
-                    
-                    //System.out.println("the size of the customer list in station " + tempStationID + " is " + tempDistStation.myCustomers.size());
-                    
-                    //update customer per distribution station
-                    tempDistStation.myCustomers.add(tempCustomer);
-                }
-
-                //update distribution station per warehouse
-                tempWarehouse.myStations.set(tempStationID, tempDistStation);
-            }
-
-            //update warehouse
-            myWarehouse.set(tempWarehouseID, tempWarehouse);
-        }
-    }
-
-    protected void createOrderData()
-    {
-        for(int tempWarehouseID = 0;tempWarehouseID < numOfWarehouses;tempWarehouseID++)
-        {
-            warehouses tempWarehouse = myWarehouse.get(tempWarehouseID);
-
-            for(int tempStationID = 0;tempStationID < numOfDistStations;tempStationID++)
-            {
-                distStations tempDistStation = tempWarehouse.myStations.get(tempStationID);
-                double tempDistStationSalesSum = tempDistStation.salesSum;
-
-                for(int tempCustomerID = 0;tempCustomerID < numOfCustomers;tempCustomerID++)
-                {   
-                    customers tempCustomer = tempDistStation.myCustomers.get(tempCustomerID);
-
-                    for(int tempOrderID = 0;tempOrderID < numOfOrders;tempOrderID++)
-                    {
-                        orders tempOrder = new orders();
-
-                        //Plus 1 to since array index is zero-indexed
-                        tempOrder.orderID = tempOrderID + 1;
-                        tempOrder.custID = tempCustomerID + 1;
-                        tempOrder.stationID = tempStationID + 1;
-                        tempOrder.warehouseID = tempWarehouseID + 1;
-
-                        tempOrder.orderPlaceDate = generateRandomTimeBetweenTwoDates(BEGIN_TIME, END_TIME);
-                        tempOrder.completed = generateRandomNumberWithinRange(0, MAX_COMPLETE_COUNT);
-                        tempOrder.lineItemCount = generateRandomNumberWithinRange(0, MAX_LINEITEM_COUNT);
-
-                        //update order per customer
-                        tempCustomer.myOrders.add(tempOrder);
-                    }
-
-                    //update customer per distribution station
-                    tempDistStation.myCustomers.set(tempCustomerID, tempCustomer);
-                }
-
-                //update distribution station per warehouse
-                tempWarehouse.myStations.set(tempStationID, tempDistStation);
-            }
-
-            //update warehouse
-            myWarehouse.set(tempWarehouseID, tempWarehouse);
-        }
-    }
-
-    protected void createItemAndData()
-    {
-        for(int tempWarehouseID = 0;tempWarehouseID < numOfWarehouses;tempWarehouseID++)
+        for(int tempItemID = 0;tempItemID < numOfItems;tempItemID++)
         {   
-            warehouses tempWarehouse = myWarehouse.get(tempWarehouseID);
-
-            for(int tempItemID = 0;tempItemID < numOfItems;tempItemID++)
-            {   
                 //create item
                 items tempItem = new items();
                 
                 //Plus 1 to since array index is zero-indexed
-                tempItem.itemID = tempItemID + 1;
-                tempItem.warehouseID = tempWarehouseID + 1;
+                tempItem.itemID = tempItemID;
                 tempItem.name = generateRandomName();
 
                 //Consistency check
                 tempItem.price = generateRandomNumberWithinRangeInDouble(MAX_PRICE);
                 
-                //Consistency check
-                tempItem.soldCount = generateRandomNumberWithinRange(0 ,MAX_STOCK_AND_SOLD_AND_ORDER_COUNT);
-                tempItem.orderCount = generateRandomNumberWithinRange(0, MAX_STOCK_AND_SOLD_AND_ORDER_COUNT);
-
-                //update distribution station
-                tempWarehouse.myItems.add(tempItem);
-
-                //create stock
-                stock tempStock = new stock();
-
-                tempStock.itemID = tempItemID + 1;
-                tempStock.warehouseID = tempWarehouseID + 1;
-
-                //Consistency check
-                tempStock.stock = generateRandomNumberWithinRange(0, MAX_STOCK_AND_SOLD_AND_ORDER_COUNT);
-
-                tempWarehouse.myStock.add(tempStock);
-            }
-
-            //update warehouse
-            myWarehouse.set(tempWarehouseID, tempWarehouse);
+                myItem.add(tempItem);
         }
     }
 
     protected void createLineItemData()
     {
-        for(int tempWarehouseID = 0;tempWarehouseID < numOfWarehouses;tempWarehouseID++)
-        {
-            warehouses tempWarehouse = myWarehouse.get(tempWarehouseID);
+        totalNumOfLineItems = numOfLineItems*numOfOrders*numOfCustomers*numOfDistStations*numOfWarehouses;
 
-            for(int tempStationID = 0;tempStationID < numOfDistStations;tempStationID++)
+        int resetLineItemID = 0;
+
+        int resetOrderID = 0;
+        int resetCustomerID = 0;
+        int resetStationID = 0;
+        int resetWarehouseID = 0;
+
+        for(int tempLineItemID = 0;tempLineItemID < totalNumOfLineItems;tempLineItemID++)
+        {   
+            if(resetLineItemID == numOfLineItems)
             {
-                distStations tempDistStation = tempWarehouse.myStations.get(tempStationID);
-                double tempDistStationSalesSum = tempDistStation.salesSum;
-
-                for(int tempCustomerID = 0;tempCustomerID < numOfCustomers;tempCustomerID++)
-                {   
-                    customers tempCustomer = tempDistStation.myCustomers.get(tempCustomerID);
-
-                    for(int tempOrderID = 0;tempOrderID < numOfOrders;tempOrderID++)
-                    {   
-                        orders tempOrder = tempCustomer.myOrders.get(tempOrderID);
-
-                        for(int tempLineItemID = 0;tempLineItemID < numOfLineItems;tempLineItemID++)
-                        {
-                            lineItems tempLineItem = new lineItems();
-
-                            //Plus 1 to since array index is zero-indexed
-                            tempLineItem.lineItemID = tempLineItemID + 1;
-                            tempLineItem.itemID = tempLineItemID % numOfItems + 1;
-                        
-                            tempLineItem.orderID = tempOrderID + 1;
-                            tempLineItem.custID = tempCustomerID + 1;
-                            tempLineItem.stationID = tempStationID + 1;
-                            tempLineItem.warehouseID = tempWarehouseID + 1;
-                            
-                            tempLineItem.quantity = generateRandomNumberWithinRange(0, MAX_QUANTITY);
-                            //System.out.println("quantity is: " + tempLineItem.quantity);
-
-                            tempLineItem.amountDue = generateRandomNumberWithinRangeInDouble(MAX_AMOUNT_DUE);
-                            tempLineItem.deliveryDate = generateRandomTimeBetweenTwoDates(BEGIN_TIME, END_TIME);
-
-                            //update line item per order
-                            tempOrder.myLineItems.add(tempLineItem);
-                        }
-
-                        //update order per customer
-                        tempCustomer.myOrders.set(tempOrderID, tempOrder);
-                    }
-
-                    //update customer per distribution station
-                    tempDistStation.myCustomers.set(tempCustomerID, tempCustomer);
-                }
-
-                //update distribution station per warehouse
-                tempWarehouse.myStations.set(tempStationID, tempDistStation);
+                resetLineItemID = 0;
+                resetOrderID++;
             }
 
-            //update warehouse
-            myWarehouse.set(tempWarehouseID, tempWarehouse);
+            if(resetOrderID == numOfOrders)
+            {
+                resetOrderID = 0;
+                resetCustomerID++;
+            }
+
+            if(resetCustomerID == numOfCustomers)
+            {
+                resetCustomerID = 0;
+                resetStationID++;
+            }
+
+            if(resetStationID == numOfDistStations)
+            {
+                resetStationID = 0;
+                resetWarehouseID++;
+            }
+
+            lineItems tempLineItem = new lineItems();
+
+            //Plus 1 to since array index is zero-indexed
+            tempLineItem.lineItemID = resetLineItemID;
+            tempLineItem.itemID = generateRandomNumberWithinRange(0, numOfItems - 1);
+            
+            tempLineItem.orderID = resetOrderID;
+
+            tempLineItem.custID = resetCustomerID;
+            tempLineItem.stationID = resetStationID;
+            tempLineItem.warehouseID = resetWarehouseID;
+                            
+            tempLineItem.quantity = generateRandomNumberWithinRange(1, MAX_QUANTITY);;
+
+            tempLineItem.amountDue = myItem.get(tempLineItem.itemID).price * tempLineItem.quantity;
+            tempLineItem.deliveryDate = generateRandomTimeBetweenTwoDates(BEGIN_TIME, END_TIME);
+
+            myLineItem.add(tempLineItem);
+
+            resetLineItemID++;
         }
+
     }
 
     protected String generateRandomName()
@@ -500,188 +493,171 @@ public class dataGenerator
         SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-mm-dd");
         
         dataGenerator testGenerator = new dataGenerator();
-        testGenerator.numOfWarehouses = 2;
+        testGenerator.numOfWarehouses = 1;
         testGenerator.numOfDistStations = 2;
         testGenerator.numOfCustomers = 2;
         testGenerator.numOfOrders = 2;
-        testGenerator.numOfItems = 10;
+        testGenerator.numOfItems = 100;
         testGenerator.numOfLineItems = 2;
 
-        testGenerator.createWarehouseData();
-        testGenerator.createDistributionStationData();
-        testGenerator.createCustomerData();
-        testGenerator.createOrderData();
-        testGenerator.createItemAndData();
+
+        testGenerator.createItemData();
         testGenerator.createLineItemData();
 
-        System.out.println("\n\n\n");
-
-        for(int tempWarehouseID = 0;tempWarehouseID < testGenerator.numOfWarehouses;tempWarehouseID++)
-        {   
-            warehouses tempWarehouse = testGenerator.myWarehouse.get(tempWarehouseID);
-
-            System.out.println("warehouses: " +
-                       tempWarehouse.warehouseID + ", " +
-                       tempWarehouse.name + ", " +
-                       tempWarehouse.strAddress + ", " +
-                       tempWarehouse.cityAddress + ", " +
-                       tempWarehouse.stateAddress + ", " +
-                       tempWarehouse.zipcode + ", " +
-                       tempWarehouse.salesTax + ", " + 
-                       tempWarehouse.salesSum);
-        }
-
-        System.out.println("\n\n\n");
+        // testGenerator.createWarehouseData();
+        // testGenerator.createDistributionStationData();
+        // testGenerator.createCustomerData();
+        // testGenerator.createOrderData();
         
-        for(int tempWarehouseID = 0;tempWarehouseID < testGenerator.numOfWarehouses;tempWarehouseID++)
-        {   
-            warehouses tempWarehouse = testGenerator.myWarehouse.get(tempWarehouseID);
+       
 
-            for(int tempStationID = 0;tempStationID < testGenerator.numOfDistStations;tempStationID++)
-            {   
-                distStations tempDistStation = tempWarehouse.myStations.get(tempStationID);
+        // System.out.println("\n\n\n");
 
-                System.out.println("distStations: " +
-                           tempDistStation.stationID + ", " +
-                           tempDistStation.warehouseID + ", " +
-                           tempDistStation.name + ", " +
-                           tempDistStation.strAddress + ", " +
-                           tempDistStation.cityAddress + ", " +
-                           tempDistStation.stateAddress + ", " +
-                           tempDistStation.zipcode + ", " +
-                           tempDistStation.salesTax + ", " + 
-                           tempDistStation.salesSum);
-            }
-        }
-        System.out.println("\n\n\n");
+        // for(int tempWarehouseID = 0;tempWarehouseID < testGenerator.numOfWarehouses;tempWarehouseID++)
+        // {   
+        //     warehouses tempWarehouse = testGenerator.myWarehouse.get(tempWarehouseID);
 
-        for(int tempWarehouseID = 0;tempWarehouseID < testGenerator.numOfWarehouses;tempWarehouseID++)
-        {   
-            warehouses tempWarehouse = testGenerator.myWarehouse.get(tempWarehouseID);
+        //     System.out.println("warehouses: " +
+        //                tempWarehouse.warehouseID + ", " +
+        //                tempWarehouse.name + ", " +
+        //                tempWarehouse.strAddress + ", " +
+        //                tempWarehouse.cityAddress + ", " +
+        //                tempWarehouse.stateAddress + ", " +
+        //                tempWarehouse.zipcode + ", " +
+        //                tempWarehouse.salesTax + ", " + 
+        //                tempWarehouse.salesSum);
+        // }
 
-            for(int tempStationID = 0;tempStationID < testGenerator.numOfDistStations;tempStationID++)
-            {   
-                distStations tempDistStation = tempWarehouse.myStations.get(tempStationID);
+        // System.out.println("\n\n\n");
+        
+        // for(int tempWarehouseID = 0;tempWarehouseID < testGenerator.numOfWarehouses;tempWarehouseID++)
+        // {   
+        //     warehouses tempWarehouse = testGenerator.myWarehouse.get(tempWarehouseID);
 
-                for(int tempCustomerID = 0;tempCustomerID < testGenerator.numOfCustomers;tempCustomerID++)
-                {   
-                    customers tempCustomer = tempDistStation.myCustomers.get(tempCustomerID);
+        //     for(int tempStationID = 0;tempStationID < testGenerator.numOfDistStations;tempStationID++)
+        //     {   
+        //         distStations tempDistStation = tempWarehouse.myStations.get(tempStationID);
 
-                    Date date_registered = new Date(tempCustomer.accountOpenDate);
+        //         System.out.println("distStations: " +
+        //                    tempDistStation.stationID + ", " +
+        //                    tempDistStation.warehouseID + ", " +
+        //                    tempDistStation.name + ", " +
+        //                    tempDistStation.strAddress + ", " +
+        //                    tempDistStation.cityAddress + ", " +
+        //                    tempDistStation.stateAddress + ", " +
+        //                    tempDistStation.zipcode + ", " +
+        //                    tempDistStation.salesTax + ", " + 
+        //                    tempDistStation.salesSum);
+        //     }
+        // }
+        // System.out.println("\n\n\n");
+
+        // for(int tempWarehouseID = 0;tempWarehouseID < testGenerator.numOfWarehouses;tempWarehouseID++)
+        // {   
+        //     warehouses tempWarehouse = testGenerator.myWarehouse.get(tempWarehouseID);
+
+        //     for(int tempStationID = 0;tempStationID < testGenerator.numOfDistStations;tempStationID++)
+        //     {   
+        //         distStations tempDistStation = tempWarehouse.myStations.get(tempStationID);
+
+        //         for(int tempCustomerID = 0;tempCustomerID < testGenerator.numOfCustomers;tempCustomerID++)
+        //         {   
+        //             customers tempCustomer = tempDistStation.myCustomers.get(tempCustomerID);
+
+        //             Date date_registered = new Date(tempCustomer.accountOpenDate);
                 
-                    System.out.println("customers: " +
-                               tempCustomer.custID + ", " +
-                               tempCustomer.stationID + ", " +
-                               tempCustomer.warehouseID + ", " +
-                               tempCustomer.fname + ", " +
-                               tempCustomer.MI + ", " +
-                               tempCustomer.lname + ", " +
-                               tempCustomer.strAddress + ", " +
-                               tempCustomer.cityAddress + ", " +
-                               tempCustomer.stateAddress + ", " +
-                               tempCustomer.zipcode + ", " +
-                               tempCustomer.phone + ", " + 
-                               date_registered + ", " + 
-                               tempCustomer.discount + ", " + 
-                               tempCustomer.balance + ", " + 
-                               tempCustomer.paid + ", " + 
-                               tempCustomer.paymentCount + ", " + 
-                               tempCustomer.deliveryCount);
-                }
-            }
-        }
+        //             System.out.println("customers: " +
+        //                        tempCustomer.custID + ", " +
+        //                        tempCustomer.stationID + ", " +
+        //                        tempCustomer.warehouseID + ", " +
+        //                        tempCustomer.fname + ", " +
+        //                        tempCustomer.MI + ", " +
+        //                        tempCustomer.lname + ", " +
+        //                        tempCustomer.strAddress + ", " +
+        //                        tempCustomer.cityAddress + ", " +
+        //                        tempCustomer.stateAddress + ", " +
+        //                        tempCustomer.zipcode + ", " +
+        //                        tempCustomer.phone + ", " + 
+        //                        date_registered + ", " + 
+        //                        tempCustomer.discount + ", " + 
+        //                        tempCustomer.balance + ", " + 
+        //                        tempCustomer.paid + ", " + 
+        //                        tempCustomer.paymentCount + ", " + 
+        //                        tempCustomer.deliveryCount);
+        //         }
+        //     }
+        // }
 
-        System.out.println("\n\n\n");
+        // System.out.println("\n\n\n");
 
-        for(int tempWarehouseID = 0;tempWarehouseID < testGenerator.numOfWarehouses;tempWarehouseID++)
-        {   
-            warehouses tempWarehouse = testGenerator.myWarehouse.get(tempWarehouseID);
+        // for(int tempWarehouseID = 0;tempWarehouseID < testGenerator.numOfWarehouses;tempWarehouseID++)
+        // {   
+        //     warehouses tempWarehouse = testGenerator.myWarehouse.get(tempWarehouseID);
 
-            for(int tempStationID = 0;tempStationID < testGenerator.numOfDistStations;tempStationID++)
-            {   
-                distStations tempDistStation = tempWarehouse.myStations.get(tempStationID);
+        //     for(int tempStationID = 0;tempStationID < testGenerator.numOfDistStations;tempStationID++)
+        //     {   
+        //         distStations tempDistStation = tempWarehouse.myStations.get(tempStationID);
 
-                for(int tempCustomerID = 0;tempCustomerID < testGenerator.numOfCustomers;tempCustomerID++)
-                {   
-                    customers tempCustomer = tempDistStation.myCustomers.get(tempCustomerID);
+        //         for(int tempCustomerID = 0;tempCustomerID < testGenerator.numOfCustomers;tempCustomerID++)
+        //         {   
+        //             customers tempCustomer = tempDistStation.myCustomers.get(tempCustomerID);
 
-                    for(int tempOrderID = 0;tempOrderID < testGenerator.numOfOrders;tempOrderID++)
-                    {   
-                        orders tempOrder = tempCustomer.myOrders.get(tempOrderID);
+        //             for(int tempOrderID = 0;tempOrderID < testGenerator.numOfOrders;tempOrderID++)
+        //             {   
+        //                 orders tempOrder = tempCustomer.myOrders.get(tempOrderID);
 
-                        Date dateOrderPlaced = new Date(tempOrder.orderPlaceDate);
+        //                 Date dateOrderPlaced = new Date(tempOrder.orderPlaceDate);
                     
-                        System.out.println("orders: " +
-                                   tempOrder.orderID + ", " +
-                                   tempOrder.custID + ", " +
-                                   tempOrder.stationID + ", " +
-                                   tempOrder.warehouseID + ", " +
-                                   dateOrderPlaced + ", " +
-                                   tempOrder.completed + ", " +
-                                   tempOrder.lineItemCount);
-                    }
-                }
-            }
-        }
+        //                 System.out.println("orders: " +
+        //                            tempOrder.orderID + ", " +
+        //                            tempOrder.custID + ", " +
+        //                            tempOrder.stationID + ", " +
+        //                            tempOrder.warehouseID + ", " +
+        //                            dateOrderPlaced + ", " +
+        //                            tempOrder.completed + ", " +
+        //                            tempOrder.lineItemCount);
+        //             }
+        //         }
+        //     }
+        // }
         
         System.out.println("\n\n\n");
 
-        for(int tempWarehouseID = 0;tempWarehouseID < testGenerator.numOfWarehouses;tempWarehouseID++)
-        {   
-            warehouses tempWarehouse = testGenerator.myWarehouse.get(tempWarehouseID);
 
-            for(int tempItemID = 0;tempItemID < testGenerator.numOfItems;tempItemID++)
-            {   
-                items tempItem = tempWarehouse.myItems.get(tempItemID);
+        for(int tempItemID = 0;tempItemID < testGenerator.numOfItems;tempItemID++)
+        {   
+            items tempItem = testGenerator.myItem.get(tempItemID);
 
                 System.out.println("items: " +
                            tempItem.itemID + ", " +
-                           tempItem.warehouseID + ", " +
                            tempItem.name + ", " +
-                           tempItem.price + ", " +
-                           tempItem.soldCount + ", " +
-                           tempItem.orderCount);
-            }
+                           tempItem.price);
         }
+
+        
+        // System.out.println("\n\n\n");
+
+        // for(int tempWarehouseID = 0;tempWarehouseID < testGenerator.numOfWarehouses;tempWarehouseID++)
+        // {   
+        //     warehouses tempWarehouse = testGenerator.myWarehouse.get(tempWarehouseID);
+
+        //     for(int tempItemID = 0;tempItemID < testGenerator.numOfItems;tempItemID++)
+        //     {   
+        //         stock tempStock = tempWarehouse.myStock.get(tempItemID);
+
+        //         System.out.println("stock: " +
+        //                    tempStock.itemID + ", " +
+        //                    tempStock.warehouseID + ", " +
+        //                    tempStock.stock);
+        //     }
+        // }
         
         System.out.println("\n\n\n");
 
-        for(int tempWarehouseID = 0;tempWarehouseID < testGenerator.numOfWarehouses;tempWarehouseID++)
-        {   
-            warehouses tempWarehouse = testGenerator.myWarehouse.get(tempWarehouseID);
 
-            for(int tempItemID = 0;tempItemID < testGenerator.numOfItems;tempItemID++)
-            {   
-                stock tempStock = tempWarehouse.myStock.get(tempItemID);
-
-                System.out.println("stock: " +
-                           tempStock.itemID + ", " +
-                           tempStock.warehouseID + ", " +
-                           tempStock.stock);
-            }
-        }
-        
-        System.out.println("\n\n\n");
-
-        for(int tempWarehouseID = 0;tempWarehouseID < testGenerator.numOfWarehouses;tempWarehouseID++)
-        {   
-            warehouses tempWarehouse = testGenerator.myWarehouse.get(tempWarehouseID);
-
-            for(int tempStationID = 0;tempStationID < testGenerator.numOfDistStations;tempStationID++)
-            {   
-                distStations tempDistStation = tempWarehouse.myStations.get(tempStationID);
-
-                for(int tempCustomerID = 0;tempCustomerID < testGenerator.numOfCustomers;tempCustomerID++)
-                {   
-                    customers tempCustomer = tempDistStation.myCustomers.get(tempCustomerID);
-
-                    for(int tempOrderID = 0;tempOrderID < testGenerator.numOfOrders;tempOrderID++)
-                    {   
-                        orders tempOrder = tempCustomer.myOrders.get(tempOrderID);
-
-                        for(int tempLineItemID = 0;tempLineItemID < testGenerator.numOfLineItems;tempLineItemID++)
+                        for(int tempLineItemID = 0;tempLineItemID < testGenerator.totalNumOfLineItems;tempLineItemID++)
                         {   
-                            lineItems tempLineItem = tempOrder.myLineItems.get(tempLineItemID);
+                            lineItems tempLineItem = testGenerator.myLineItem.get(tempLineItemID);
 
                             Date dateDelivered = new Date(tempLineItem.deliveryDate);
 
@@ -696,10 +672,7 @@ public class dataGenerator
                                        tempLineItem.amountDue + ", " +
                                        dateDelivered);
                         }
-                    }
-                }
-            }
-        }
+
 
         
         System.out.println("\n\n\n");

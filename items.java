@@ -16,20 +16,14 @@
 public class items
 {
 	protected int itemID;
-	protected int warehouseID;
 	protected String name;
 	protected double price; 
-	protected int soldCount;
-	protected int orderCount;
 
 	protected items()
 	{	
 		this.itemID = 0;
-		this.warehouseID = 0;
 		this.name = "foo";
 		this.price = 0;
-		this.soldCount = 0;
-		this.orderCount = 0;
 	}
 
 }

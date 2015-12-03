@@ -74,13 +74,9 @@ create table orders(
 
 create table items(
 	itemID integer,
-	warehouseID integer,
 	name varchar2(20),
 	price number(20, 2),
-	soldCount integer,
-	orderCount integer,
-	constraint items_PK primary key(itemID, warehouseID),
-	constraint items_FK foreign key(warehouseID) references warehouses(warehouseID) initially immediate deferrable
+	constraint items_PK primary key(itemID)
 );
 
 create table lineItems(
@@ -94,14 +90,17 @@ create table lineItems(
 	amountDue number(20, 2),
 	deliveryDate date,
 	constraint lineItems_PK primary key(lineitemID, orderID, custID, warehouseID, stationID),
-	constraint lineItems_FK1 foreign key(orderID, custID, stationID, warehouseID) references orders(orderID, custID, stationID, warehouseID) initially immediate deferrable,
-	constraint lineItems_FK2 foreign key(itemID, warehouseID) references items(itemID, warehouseID) initially immediate deferrable
+	constraint lineItems_FK1 foreign key(orderID, custID, stationID, warehouseID) references orders(orderID, custID, stationID, warehouseID)  initially immediate deferrable,
+	constraint lineItems_FK2 foreign key(itemID) references items(itemID) initially immediate deferrable
 );
 
 create table stock(
 	itemID integer,
 	warehouseID integer,
 	stock integer,
+        numSold integer,
+        numOrders integer,
 	constraint stock_PK primary key(itemID, warehouseID),
-	constraint stock_FK foreign key(itemID, warehouseID) references items(itemID, warehouseID) initially immediate deferrable
+        constraint stock_FK1 foreign key(itemID) references items(itemID) initially immediate deferrable,
+        constraint stock_FK2 foreign key(warehouseID) references warehouses(warehouseID)
 );

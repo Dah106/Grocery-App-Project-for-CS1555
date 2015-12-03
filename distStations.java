@@ -26,7 +26,6 @@ public class distStations
 	protected String zipcode;
 	protected double salesTax;
 	protected double salesSum;
-	protected ArrayList<customers> myCustomers;
 
 	protected distStations()
 	{	
@@ -39,7 +38,6 @@ public class distStations
 		this.zipcode = "12345";
 		this.salesTax = 0;
 		this.salesSum = 0;
-		myCustomers = new ArrayList<customers>();
 	}
 
 	

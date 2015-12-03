@@ -18,11 +18,15 @@ public class stock
 	protected int itemID;
 	protected int warehouseID;
 	protected int stock;
+        protected int numSold;
+        protected int numOrders;
 
 	protected stock()
 	{
 		this.itemID = 0;
 		this.warehouseID = 0;
 		this.stock = 0;
+                this.numSold = 0;
+                this.numOrders = 0;
 	}
 }

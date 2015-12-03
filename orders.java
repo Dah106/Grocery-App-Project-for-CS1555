@@ -24,7 +24,6 @@ public class orders
 	protected long orderPlaceDate;
 	protected int completed; 
 	protected int lineItemCount;
-	protected ArrayList<lineItems> myLineItems;
 
 	protected orders()
 	{	
@@ -35,7 +34,6 @@ public class orders
 		this.orderPlaceDate = 0;
 		this.completed = 0;
 		this.lineItemCount = 0;
-		myLineItems = new ArrayList<lineItems>();
 	}
 
 }

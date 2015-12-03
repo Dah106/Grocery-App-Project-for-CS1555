@@ -35,7 +35,6 @@ public class customers
 	protected double paid;
 	protected int paymentCount;
 	protected int deliveryCount;
-	protected ArrayList<orders> myOrders;
 
 	protected customers()
 	{	
@@ -56,6 +55,5 @@ public class customers
 		this.paid = 0;
 		this.paymentCount = 0;
 		this.deliveryCount = 0;
-		myOrders = new ArrayList<orders>();
 	}
 }

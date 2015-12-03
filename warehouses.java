@@ -25,9 +25,6 @@ public class warehouses
 	protected String zipcode;
 	protected double salesTax;
 	protected double salesSum;
-	protected ArrayList<distStations> myStations;
-	protected ArrayList<items> myItems;
-	protected ArrayList<stock> myStock;
 
 	protected warehouses()
 	{
@@ -39,10 +36,5 @@ public class warehouses
 		this.zipcode = "12345";
 		this.salesTax = 50;
 		this.salesSum = 10000;
-		myStations = new ArrayList<distStations>();
-		myItems = new ArrayList<items>();
-		myStock = new ArrayList<stock>();
 	}
-
-	
 }
