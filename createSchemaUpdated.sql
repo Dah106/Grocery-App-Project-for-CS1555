@@ -33,7 +33,7 @@ create table distStations(
 	salesSum number (20, 2),
 	constraint checkDistStationSalesTax check(salesTax > 0),
 	constraint distStations_PK primary key(stationID, warehouseID),
-	constraint distStations_FK foreign key(warehouseID) references warehouses(warehouseID) initially immediate deferrable
+	constraint distStations_FK foreign key(warehouseID) references warehouses(warehouseID)  Deferrable Initially Deferred
 );
 
 create table customers(
@@ -55,7 +55,7 @@ create table customers(
 	paymentCount integer,
 	deliveryCount integer,
 	constraint customers_PK primary key(custID, stationID, warehouseID),
-	constraint customers_FK foreign key(stationID, warehouseID) references distStations(stationID, warehouseID) initially immediate deferrable
+	constraint customers_FK foreign key(stationID, warehouseID) references distStations(stationID, warehouseID)  Deferrable Initially Deferred
 );
 
 --for completed orders (1 for completed, 0 for not completed)
@@ -68,7 +68,7 @@ create table orders(
 	completed integer,
 	lineItemCount integer,
 	constraint orders_PK primary key(orderID, custID, stationID, warehouseID),
-	constraint orders_FK foreign key(custID, stationID, warehouseID) references customers(custID, stationID, warehouseID) initially immediate deferrable
+	constraint orders_FK foreign key(custID, stationID, warehouseID) references customers(custID, stationID, warehouseID)  Deferrable Initially Deferred
 );
 
 
@@ -89,18 +89,18 @@ create table lineItems(
 	quantity integer,
 	amountDue number(20, 2),
 	deliveryDate date,
-	constraint lineItems_PK primary key(lineitemID, orderID, custID, warehouseID, stationID),
-	constraint lineItems_FK1 foreign key(orderID, custID, stationID, warehouseID) references orders(orderID, custID, stationID, warehouseID)  initially immediate deferrable,
-	constraint lineItems_FK2 foreign key(itemID) references items(itemID) initially immediate deferrable
+	constraint lineItems_PK primary key (lineitemID, orderID, custID, warehouseID, stationID),
+	constraint lineItems_FK1 foreign key (orderID, custID, stationID, warehouseID) references orders(orderID, custID, stationID, warehouseID) Deferrable Initially Deferred,
+	constraint lineItems_FK2 foreign key(itemID) references items(itemID) Deferrable Initially Deferred
 );
 
 create table stock(
 	itemID integer,
 	warehouseID integer,
 	stock integer,
-        numSold integer,
-        numOrders integer,
+    numSold integer,
+    numOrders integer,
 	constraint stock_PK primary key(itemID, warehouseID),
-        constraint stock_FK1 foreign key(itemID) references items(itemID) initially immediate deferrable,
-        constraint stock_FK2 foreign key(warehouseID) references warehouses(warehouseID)
+    constraint stock_FK1 foreign key(itemID) references items(itemID) Deferrable Initially Deferred,
+    constraint stock_FK2 foreign key(warehouseID) references warehouses(warehouseID) Deferrable Initially Deferred
 );
