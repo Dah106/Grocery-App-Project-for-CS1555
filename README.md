@@ -41,6 +41,10 @@ Program User Input is changed to adapt to Milestone 2 requirement
 
 - in program, allows for anonymity and scalability:	
 
+* When running the program, createSchema is implemented within it, so there is no need to run it additionally.
+
+* Run run.sql to view contents of all tables.
+
 Please enter the username: 
 
 Please enter the password: 

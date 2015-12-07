@@ -46,6 +46,7 @@ public class groceryDeliveryApp{
     protected String password;
     private static Scanner reader;
     private dataGenerator myDataGenerator;
+	private dataGenerator initialDataGenerator;
 	
 	private int initialNumWarehouses;
 	private int initialNumDistStations;
@@ -62,6 +63,7 @@ public class groceryDeliveryApp{
         reader = new Scanner(System.in);
     	groceryDeliveryApp myApp = new groceryDeliveryApp();
     	myApp.initSystem();
+		myApp.dropAndCreateTables();
     	myApp.generateInitalData();
         myApp.transactions();
         reader.close();
@@ -449,7 +451,7 @@ public class groceryDeliveryApp{
 		
 	}
 	
-	private void reinitDb() throws SQLException
+	private void dropAndCreateTables() throws SQLException
 	{
 		// Re-initialize the database back to the original specifications entered by the user
 		String startTransaction = "SET TRANSACTION READ WRITE";
@@ -576,6 +578,12 @@ public class groceryDeliveryApp{
                 System.out.println("Cannot close Statement. Machine error: "+e.toString());
             }
         }
+	}
+	
+	private void reinitDb() throws SQLException
+	{
+		// Drop exisiting tables and recreate them
+		dropAndCreateTables();
 		
 		// Create data based off of initial state and insert into tables
 		// In Milestone 2 write-up, it states that the database should be re-initialized to 
@@ -1057,6 +1065,24 @@ public class groceryDeliveryApp{
             System.out.println("Enter id of warehouse: ");
             int wID = reader.nextInt();
             reader.nextLine();
+			
+			statement = connection.createStatement();
+            String selectQuery = "SELECT * FROM lineItems";
+            resultSet = statement.executeQuery(selectQuery);
+			System.out.println("\nBefore transaction");
+			System.out.println("\nlineitemID  itemID  orderID  custID  stationID  warehouseID quantity amountDue deliveryDate");
+            while (resultSet.next()) {
+                System.out.println(resultSet.getInt("lineitemID") + "   " +
+                        resultSet.getInt("itemID") + "   " +
+						resultSet.getInt("orderID") + "   " +
+						resultSet.getInt("custID") + "   " +
+						resultSet.getInt("stationID") + "   " +
+                        resultSet.getInt("warehouseID") + "   " +
+						resultSet.getInt("quantity") + "   " +
+						resultSet.getDouble("amountDue") + "   " +
+						resultSet.getDate("deliveryDate"));
+            }
+            resultSet.close();
             
             warehouses tempWarehouse = new warehouses();
             int index = 0;
@@ -1145,6 +1171,24 @@ public class groceryDeliveryApp{
 
             connection.commit();
             
+			statement = connection.createStatement();
+            selectQuery = "SELECT * FROM lineItems";
+            resultSet = statement.executeQuery(selectQuery);
+			System.out.println("\nAfter transaction");
+			System.out.println("\nlineitemID  itemID  orderID  custID  stationID  warehouseID quantity amountDue deliveryDate");
+            while (resultSet.next()) {
+                System.out.println(resultSet.getInt("lineitemID") + "   " +
+                        resultSet.getInt("itemID") + "   " +
+						resultSet.getInt("orderID") + "   " +
+						resultSet.getInt("custID") + "   " +
+						resultSet.getInt("stationID") + "   " +
+                        resultSet.getInt("warehouseID") + "   " +
+						resultSet.getInt("quantity") + "   " +
+						resultSet.getDouble("amountDue") + "   " +
+						resultSet.getDate("deliveryDate"));
+            }
+            resultSet.close();
+			
         }
         
         private void stockLevelTransaction()
