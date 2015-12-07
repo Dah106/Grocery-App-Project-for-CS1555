@@ -23,13 +23,16 @@
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Scanner;
 import java.util.InputMismatchException;
+import java.util.List;
 
-public class groceryDeliveryApp {
+public class groceryDeliveryApp{
 	
 
 	private static Connection connection; //used to hold the jdbc connection to the DB
@@ -411,6 +414,14 @@ public class groceryDeliveryApp {
                     {
                         orderStatusTransaction();
                     }
+                    else if (choice == 4)
+                    {
+                        deliveryTransaction();
+                    }
+                    else if (choice == 5)
+                    {
+                        stockLevelTransaction();
+                    }
                 }
                 
                 System.out.println();
@@ -533,33 +544,11 @@ public class groceryDeliveryApp {
                         }
                 }
                 
-                //get tax rate of warehouse
-                double tax = 0;
-                for (int i = 0; i < myDataGenerator.numOfWarehouses; i++)
-                {
-                    if (myDataGenerator.myWarehouse.get(i).warehouseID == wID)
-                    {
-                        tax = myDataGenerator.myWarehouse.get(i).salesTax;
-                        break;
-                    }
-                }
-                
-                //get customer discount rate
-                customers tempCustomer = new customers();
-                double discount = 0;
-                for(int i = 0; i < myDataGenerator.totalNumOfCustomers; i++)
-                {
-                    tempCustomer = myDataGenerator.myCustomer.get(i);
-                    if (tempCustomer.custID == cID && tempCustomer.stationID == sID && tempCustomer.warehouseID == wID)
-                    {
-                        discount = tempCustomer.discount;
-                        break;
-                    }
-                }                
+         
                 
                 lineItemID = myDataGenerator.myLineItem.get(index).lineItemID + 1;
                 
-                double balance = 0;//to be used for balance in Customers table
+
                 for (int i = 0; i < totalCount; i++)
                 {
                     tempLineItem = new lineItems();
@@ -578,7 +567,6 @@ public class groceryDeliveryApp {
                         if (myDataGenerator.myItem.get(j).itemID == itemID[i])
                         {
                             tempLineItem.amountDue = itemCount[i] * myDataGenerator.myItem.get(j).price;
-                            balance+=tempLineItem.amountDue * (1-discount/100) * (1 + tax/100);
                             break;
                         }
                     }
@@ -586,16 +574,15 @@ public class groceryDeliveryApp {
                     Calendar c = Calendar.getInstance();
                     c.setTime(new Date());
                     c.add(Calendar.DATE, 5); //increment 5 days for delivery date
-                    tempLineItem.deliveryDate = c.getTime().getTime();
-                    java.sql.Date dateOrderDelivered = new java.sql.Date(tempLineItem.deliveryDate);
+                    tempLineItem.deliveryDate = -1;
+                    
                     
                     
                     myDataGenerator.myLineItem.add(tempLineItem);
                     myDataGenerator.totalNumOfLineItems++;
                     
                     query = "insert into lineItems values (?,?,?,?,?,?,?,?,?)";
-                    prepStatement = connection.prepareStatement(query);
-                    
+                    prepStatement = connection.prepareStatement(query);                    
                     
                     prepStatement.setInt(1, lineItemID);
                     prepStatement.setInt(2, itemID[i]); 
@@ -605,37 +592,14 @@ public class groceryDeliveryApp {
                     prepStatement.setInt(6, wID); 
                     prepStatement.setInt(7, itemCount[i]);
                     prepStatement.setDouble(8, (double) tempLineItem.amountDue);
-                    prepStatement.setDate(9, dateOrderDelivered);
+                    prepStatement.setNull(9, java.sql.Types.DATE);
 
                     prepStatement.executeUpdate();
                     lineItemID++;
                     
                     //insert lineItem data into table
                 }
-                
-//*******************************************************************************************                
-                //handle customer table
-                
-
-                for(int i = 0; i < myDataGenerator.totalNumOfCustomers; i++)
-                {
-                    tempCustomer = myDataGenerator.myCustomer.get(i);
-                    if (tempCustomer.custID == cID && tempCustomer.stationID == sID && tempCustomer.warehouseID == wID)
-                    {
-                        myDataGenerator.myCustomer.get(i).balance = balance;
-                        break;
-                    }
-                }
-                
-                query = "update customers set balance = ? where custId = ? AND warehouseid = ? and stationid = ?";
-                prepStatement = connection.prepareStatement(query);
                   
-                prepStatement.setDouble(1, balance);
-                prepStatement.setInt(2, cID); 
-                prepStatement.setInt(3, wID); 
-                prepStatement.setInt(4, sID); 
-
-                prepStatement.executeUpdate();          
                 
 //*******************************************************************************************
                 //handle stock table
@@ -853,6 +817,202 @@ public class groceryDeliveryApp {
             
             
             
+        }
+        
+        private void deliveryTransaction() throws SQLException
+        {
+            
+            System.out.println("Enter id of warehouse: ");
+            int wID = reader.nextInt();
+            reader.nextLine();
+            
+            warehouses tempWarehouse = new warehouses();
+            int index = 0;
+            double tax = 0;
+            
+            //get tax rate for the warehouse
+            for (int i = 0; i < myDataGenerator.numOfWarehouses; i++)
+            {
+                tempWarehouse = myDataGenerator.myWarehouse.get(i);
+                if (tempWarehouse.warehouseID == wID)
+                {
+                    index = i;
+                    tax = tempWarehouse.salesTax;
+                    break;
+                }
+            }
+            
+            lineItems tempLineItem = new lineItems();
+            long longDate = Calendar.getInstance().getTime().getTime();
+            java.sql.Date dateOrderPlaced = new java.sql.Date(longDate);
+            
+            //update lineItems
+            query = "update lineitems set deliveryDate = ? where warehouseid = ? and deliverydate is null";
+            prepStatement = connection.prepareStatement(query);
+
+            prepStatement.setDate(1, dateOrderPlaced);
+            prepStatement.setInt(2, wID); 
+
+            prepStatement.executeUpdate();             
+            
+            int sID = 0;
+            double discount = 0;
+            index = 0;
+            double balance = 0;
+            
+            for (int i = 0; i < myDataGenerator.totalNumOfLineItems; i++)
+            {
+                tempLineItem = myDataGenerator.myLineItem.get(i);
+                
+                if (tempLineItem.warehouseID == wID && tempLineItem.deliveryDate == -1)
+                {
+                    myDataGenerator.myLineItem.get(i).deliveryDate = longDate;
+                   sID = tempLineItem.stationID;
+                   
+                   customers tempCustomer = new customers();
+                   //get customer discount rate;
+                   for (int j = 0; j < myDataGenerator.totalNumOfCustomers; j++)
+                   {
+                       tempCustomer = myDataGenerator.myCustomer.get(j);
+                       if (tempCustomer.stationID == sID && tempCustomer.warehouseID == wID && tempCustomer.custID == tempLineItem.custID)
+                       {
+                            discount = tempCustomer.discount;
+                            index = j;
+                            break;
+                       }
+                   }
+                   
+                   balance = tempLineItem.amountDue * (1-discount/100) * (1 + tax/100);
+                   myDataGenerator.myCustomer.get(index).balance += balance;
+                   myDataGenerator.myCustomer.get(index).deliveryCount++;
+                   
+                    //update customers
+                    query = "update customers set balance = ? where warehouseid = ? and stationid = ? and custid = ?";
+                    prepStatement = connection.prepareStatement(query);
+
+                    prepStatement.setDouble(1, myDataGenerator.myCustomer.get(index).balance);
+                    prepStatement.setInt(2, wID);
+                    prepStatement.setInt(3, sID);
+                    prepStatement.setInt(4, tempLineItem.custID);
+                    
+                    prepStatement.executeUpdate();          
+                    
+                    //update customers
+                    query = "update customers set deliveryCount = ? where warehouseid = ? and stationid = ? and custid = ?";
+                    prepStatement = connection.prepareStatement(query);
+
+                    prepStatement.setDouble(1, myDataGenerator.myCustomer.get(index).deliveryCount);
+                    prepStatement.setInt(2, wID);
+                    prepStatement.setInt(3, sID);
+                    prepStatement.setInt(4, tempLineItem.custID);
+                    
+                    prepStatement.executeUpdate();                      
+                    
+                }
+            }
+
+            connection.commit();
+            
+        }
+        
+        private void stockLevelTransaction()
+        {
+            
+            System.out.println("Enter Distribution Station ID: ");
+            int sID = reader.nextInt();
+            System.out.println("Enter Warehouse ID: ");
+            int wID = reader.nextInt();
+            System.out.println("Enter threshold: ");
+            int threshold = reader.nextInt();
+            reader.nextLine();
+            
+            ArrayList<orders> copy = new ArrayList<orders>(myDataGenerator.myOrder.size());
+           
+            orders newOrder = new orders();
+            for (orders tempOrder: myDataGenerator.myOrder)
+            {
+                newOrder = new orders();
+                newOrder.orderID = tempOrder.orderID;
+                newOrder.custID = tempOrder.custID;
+                newOrder.stationID = tempOrder.stationID;
+                newOrder.warehouseID = tempOrder.warehouseID;
+                newOrder.orderPlaceDate = tempOrder.orderPlaceDate;
+                newOrder.completed = tempOrder.completed;
+                newOrder.lineItemCount = tempOrder.lineItemCount;
+                
+                copy.add(newOrder);
+            }
+            
+            Collections.sort(copy);
+            
+            lineItems tempLineItem = new lineItems();
+            int count20 = 0; //keep track of last 20 orders
+            int countUnder = 0; //number of items under threshold
+            stock tempStock = new stock();
+            int[] itemID = new int[myDataGenerator.numOfItems];
+            
+            for (int i = 0; i < itemID.length; i++)
+            {
+                itemID[i] = -1;
+            }
+            
+            int index = 0;
+            for (int i = 0; i < copy.size(); i++)
+            {
+                if (count20 == 20)
+                {
+                    break;
+                }
+                
+                if (copy.get(i).warehouseID == wID && copy.get(i).stationID == sID)
+                {
+                    for (int j = 0; j < myDataGenerator.totalNumOfLineItems; j++)
+                    {
+                        tempLineItem = myDataGenerator.myLineItem.get(j);
+                        
+                        if (tempLineItem.orderID == copy.get(i).orderID && tempLineItem.custID == copy.get(i).custID && tempLineItem.stationID == copy.get(i).stationID && tempLineItem.warehouseID == wID)
+                        {
+                            for (int k = 0; k < myDataGenerator.totalNumOfStocks; k++)
+                            {
+                                tempStock = myDataGenerator.myStock.get(k);
+                                if (tempLineItem.itemID == tempStock.itemID && tempStock.warehouseID == wID && tempStock.stock < threshold)
+                                {
+                                    boolean contains = false;
+                                    for (int m = 0; m < itemID.length; m++)
+                                    {
+                                        if (itemID[m] == tempStock.itemID)
+                                        {
+                                            contains = true;
+                                            break;
+                                        }
+                                    }
+                                    
+                                    if (contains)
+                                    {
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        itemID[index] = tempStock.itemID;
+                                        index++;
+                                        countUnder++;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    count20++;
+                                    
+                }
+                
+
+            }
+            
+            System.out.println();
+            System.out.println("Count of number of items under threshold for the given unique distribution station: \n" + countUnder);
+            System.out.println();
+
         }
 
     

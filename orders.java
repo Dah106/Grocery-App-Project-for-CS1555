@@ -15,7 +15,7 @@
 */
 import java.util.ArrayList;
 
-public class orders
+public class orders implements Comparable<orders>
 {	
 	protected int orderID;
 	protected int custID;
@@ -35,5 +35,25 @@ public class orders
 		this.completed = 0;
 		this.lineItemCount = 0;
 	}
+        
+        @Override    
+        public int compareTo(orders order1) 
+        {
+            long order1age=((orders)order1).orderPlaceDate;
+
+            if (order1age - this.orderPlaceDate < 0)
+            {
+                return -1;
+            }
+            else if (order1age - this.orderPlaceDate == 0)
+            {
+                return 0;
+            }
+            else
+            {
+                return 1;
+            }
+
+        }
 
 }
