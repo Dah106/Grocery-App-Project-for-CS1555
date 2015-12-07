@@ -39,13 +39,20 @@ public class groceryDeliveryApp{
     private Statement statement; //used to create an instance of the connection
 
     private PreparedStatement prepStatement; //used to create a prepared statement, that will be later reused
-    //private ResultSet resultSet; //used to hold the result of your query if one exists
+    private ResultSet resultSet; //used to hold the result of your query if one exists
     private String query;  //this will hold the query we are using
 
     protected String userName;
     protected String password;
     private static Scanner reader;
     private dataGenerator myDataGenerator;
+	
+	private int initialNumWarehouses;
+	private int initialNumDistStations;
+	private int initialNumCustomers;
+	private int initialNumOrders;
+	private int initialNumItems;
+	private int initialNumLineItems;
 
     // This is how you can specify the format for the dates you will use
 	SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-mm-dd");
@@ -80,22 +87,28 @@ public class groceryDeliveryApp{
 		password = reader.next();
 		
 		System.out.print("Please enter the number of warehouses for the system: ");
-		myDataGenerator.numOfWarehouses = reader.nextInt();
+		initialNumWarehouses = reader.nextInt();
+		myDataGenerator.numOfWarehouses = initialNumWarehouses;
 
 		System.out.print("Please enter the number of distribution stations per warehouse: ");
-		myDataGenerator.numOfStations = reader.nextInt();
+		initialNumDistStations = reader.nextInt();
+		myDataGenerator.numOfStations = initialNumDistStations;
 
 		System.out.print("Please enter the number of customers per distribution station: ");
-		myDataGenerator.numOfCustomers = reader.nextInt();
+		initialNumCustomers = reader.nextInt();
+		myDataGenerator.numOfCustomers = initialNumCustomers;
 
 		System.out.print("Please enter the number of orders per customer: ");
-		myDataGenerator.numOfOrders = reader.nextInt();
+		initialNumOrders = reader.nextInt();
+		myDataGenerator.numOfOrders = initialNumOrders;
 
 		System.out.print("Please enter the number of items per warehouse: ");
-		myDataGenerator.numOfItems = reader.nextInt();
+		initialNumItems = reader.nextInt();
+		myDataGenerator.numOfItems = initialNumItems;
 
 		System.out.print("Please enter the number of line items per order: ");
-		myDataGenerator.numOfLineItems = reader.nextInt();
+		initialNumLineItems = reader.nextInt();
+		myDataGenerator.numOfLineItems = initialNumLineItems;
 
 		//reader.close();
 
@@ -392,6 +405,7 @@ public class groceryDeliveryApp{
                     System.out.println("3 for Order Status Transaction");
                     System.out.println("4 for Delivery Transaction");
                     System.out.println("5 for Stock Level Transaction");
+					System.out.println("0 to Re-initialize the database");
                     System.out.println("-1 to stop performing transactions");
 
                     System.out.print("Enter Choice: ");
@@ -402,6 +416,10 @@ public class groceryDeliveryApp{
                     {
                         break;
                     }
+					else if (choice == 0)
+					{
+						reinitDb();
+					}
                     else if (choice == 1)
                     {
                         newOrderTransaction();
@@ -431,12 +449,182 @@ public class groceryDeliveryApp{
 		
 	}
 	
+	private void reinitDb() throws SQLException
+	{
+		// Re-initialize the database back to the original specifications entered by the user
+		String startTransaction = "SET TRANSACTION READ WRITE";
+		String dropTableWarehouse = "drop table warehouses cascade constraints";
+		String dropTableDistStations = "drop table distStations cascade constraints";
+		String dropTableCustomers = "drop table customers cascade constraints";
+		String dropTableOrders = "drop table orders cascade constraints";
+		String dropTableItems = "drop table items cascade constraints";
+		String dropTableLineItems = "drop table lineItems cascade constraints";
+		String dropTableStock = "drop table stock cascade constraints";
+		String purge = "purge recyclebin";
+		String createTableWarehouse = "create table warehouses (" + 
+            	"warehouseID integer," +
+				"name varchar2(20)," +
+				"strAddress varchar2(20)," +
+				"cityAddress varchar2(20)," +
+				"stateAddress varchar2(20)," +
+				"zipcode varchar2(20)," +
+				"salesTax number(4,2)," +
+				"salesSum number(20, 2)," +
+				"constraint checkWarehousesSalesTax check(salesTax > 0)," +
+				"constraint warehouses_PK primary key(warehouseID) )";
+		String createTableDistStations = "create table distStations (" +
+				"stationID	integer," +
+				"warehouseID integer," +
+				"name varchar2(20)," +
+				"strAddress varchar2(20)," +
+				"cityAddress varchar2(20)," +
+				"stateAddress varchar2(20)," +
+				"zipcode varchar2(20)," +
+				"salesTax number(4,2)," +
+				"salesSum number (20, 2)," +
+				"constraint checkDistStationSalesTax check(salesTax > 0)," +
+				"constraint distStations_PK primary key(stationID, warehouseID)," +
+				"constraint distStations_FK foreign key(warehouseID) references warehouses(warehouseID)  Deferrable Initially Deferred)";
+		String createTableCustomers = "create table customers (" +
+				"custID integer," +
+				"stationID integer," +
+				"warehouseID integer," +
+				"fname varchar2(20)," +
+				"MI	varchar2(1)," +
+				"lname varchar2(20)," +
+				"strAddress varchar2(20)," +
+				"cityAddress varchar2(20)," +
+				"stateAddress varchar2(20)," +
+				"zipcode varchar2(20)," +
+				"phone varchar2(10)," +
+				"accountOpenDate date," +
+				"discount number(4,2)," +
+				"balance number(20, 2)," +
+				"paid number(20, 2)," +
+				"paymentCount integer," +
+				"deliveryCount integer," +
+				"constraint customers_PK primary key(custID, stationID, warehouseID)," +
+				"constraint customers_FK foreign key(stationID, warehouseID) references distStations(stationID, warehouseID)  Deferrable Initially Deferred)";
+		String createTableOrders = 	"create table orders (" +
+				"orderID integer," +
+				"custID integer," +
+				"stationID integer," +
+				"warehouseID integer," +
+				"orderPlaceDate date," +
+				"completed integer," +
+				"lineItemCount integer," +
+				"constraint orders_PK primary key(orderID, custID, stationID, warehouseID)," +
+				"constraint orders_FK foreign key(custID, stationID, warehouseID) references customers(custID, stationID, warehouseID)  Deferrable Initially Deferred)";
+		String createTableItems = "create table items (" +
+				"itemID integer," +
+				"name varchar2(20)," +
+				"price number(20, 2)," +
+				"constraint items_PK primary key(itemID))";
+		String createTableLineItems = "create table lineItems (" +
+				"lineitemID integer," +
+				"itemID integer," +
+				"orderID integer," +
+				"custID integer," +
+				"stationID integer," +
+				"warehouseID integer," +
+				"quantity integer," +
+				"amountDue number(20, 2)," +
+				"deliveryDate date," +
+				"constraint lineItems_PK primary key (lineitemID, orderID, custID, warehouseID, stationID)," +
+				"constraint lineItems_FK1 foreign key (orderID, custID, stationID, warehouseID) references orders(orderID, custID, stationID, warehouseID) Deferrable Initially Deferred," +
+				"constraint lineItems_FK2 foreign key(itemID) references items(itemID) Deferrable Initially Deferred)";
+		String createTableStock = "create table stock (" +
+				"itemID integer," +
+				"warehouseID integer," +
+				"stock integer," +
+				"numSold integer," +
+				"numOrders integer," +
+				"constraint stock_PK primary key(itemID, warehouseID)," +
+				"constraint stock_FK1 foreign key(itemID) references items(itemID) Deferrable Initially Deferred," +
+				"constraint stock_FK2 foreign key(warehouseID) references warehouses(warehouseID) Deferrable Initially Deferred)";
+		
+		// Execute creation of database
+		try {
+            statement = connection.createStatement();
+			connection.commit();
+            statement.executeUpdate(startTransaction);
+            statement.executeUpdate(dropTableWarehouse);
+            statement.executeUpdate(dropTableDistStations);
+            statement.executeUpdate(dropTableCustomers);
+            statement.executeUpdate(dropTableOrders);
+			statement.executeUpdate(dropTableLineItems);
+            statement.executeUpdate(dropTableItems);
+			statement.executeUpdate(dropTableStock);
+			statement.executeUpdate(purge);
+			
+			statement.executeUpdate(createTableWarehouse);
+			statement.executeUpdate(createTableDistStations);
+			statement.executeUpdate(createTableCustomers);
+			statement.executeUpdate(createTableOrders);
+			statement.executeUpdate(createTableItems);
+			statement.executeUpdate(createTableLineItems);
+			statement.executeUpdate(createTableStock);
+            statement.executeUpdate("COMMIT");
+        } catch(SQLException Ex) {
+            System.out.println("Error running re-initialization.  Machine Error: " +
+                    Ex.toString());
+        } finally{
+            try {
+                if (statement != null)
+                    statement.close();
+            } catch (SQLException e) {
+                System.out.println("Cannot close Statement. Machine error: "+e.toString());
+            }
+        }
+		
+		// Create data based off of initial state and insert into tables
+		// In Milestone 2 write-up, it states that the database should be re-initialized to 
+		//   a certain number of each attribute, but because of the size of the data, it 
+		//   was deemed unnecessary to scale that large. Instead, we go back to the state entered
+		//   by the user. If you wanted to adhere to the milestone write-up, the initial variables
+		//  could be replaced with constants.
+		myDataGenerator = new dataGenerator();
+		myDataGenerator.numOfWarehouses = initialNumWarehouses;
+		myDataGenerator.numOfStations = initialNumDistStations;
+		myDataGenerator.numOfCustomers = initialNumCustomers;
+		myDataGenerator.numOfOrders = initialNumOrders;
+		myDataGenerator.numOfItems = initialNumItems;
+		myDataGenerator.numOfLineItems = initialNumLineItems;
+		
+		myDataGenerator.createSalesTax(myDataGenerator.numOfWarehouses);
+        myDataGenerator.createItemData();
+        myDataGenerator.createLineItemData();
+        myDataGenerator.createOrderData();
+        myDataGenerator.createStock();
+        myDataGenerator.createCustomerData();
+        myDataGenerator.createDistributionStationData();
+        myDataGenerator.createWarehouseData();
+		
+		generateInitalData();
+	}
+	
 	private void newOrderTransaction() throws SQLException
 	{
             
                 connection.setAutoCommit(false);//disable auto-commit for each transaction
                 statement = connection.createStatement(); //create an instance
             
+			statement = connection.createStatement();
+            String selectQuery = "SELECT * FROM orders";
+            resultSet = statement.executeQuery(selectQuery);
+			System.out.println("\nBefore transaction");
+			System.out.println("orderID  custID  stationID  warehouseID  orderPlaceDate  completed  lineItemCount");
+            while (resultSet.next()) {
+                System.out.println(resultSet.getInt("orderID") + "   " +
+                        resultSet.getInt("custID") + "   " +
+                        resultSet.getInt("stationID") + "   " +
+						resultSet.getDouble("warehouseID") + "   " +
+						resultSet.getDate("orderPlaceDate") + "   " +
+						resultSet.getDouble("completed") + "   " +
+						resultSet.getInt("lineItemCount"));
+            }
+            resultSet.close();
+			
 		//Scanner reader = new Scanner(System.in);
 		
 		System.out.println("Enter Customer Warehouse ID:");
@@ -650,10 +838,41 @@ public class groceryDeliveryApp{
                 }
                 
                 connection.commit();
+				
+			statement = connection.createStatement();
+            selectQuery = "SELECT * FROM orders";
+            resultSet = statement.executeQuery(selectQuery);
+			System.out.println("\nAfter transaction");
+			System.out.println("orderID  custID  stationID  warehouseID  orderPlaceDate  completed  lineItemCount");
+            while (resultSet.next()) {
+                System.out.println(resultSet.getInt("orderID") + "   " +
+                        resultSet.getInt("custID") + "   " +
+                        resultSet.getInt("stationID") + "   " +
+						resultSet.getDouble("warehouseID") + "   " +
+						resultSet.getDate("orderPlaceDate") + "   " +
+						resultSet.getDouble("completed") + "   " +
+						resultSet.getInt("lineItemCount"));
+            }
+            resultSet.close();
 	}
         
         private void paymentTransaction() throws SQLException
         {
+			statement = connection.createStatement();
+            String selectQuery = "SELECT * FROM customers";
+            resultSet = statement.executeQuery(selectQuery);
+			System.out.println("\nBefore transaction");
+			System.out.println("\ncustID  stationID  warehouseID  balance  paid  paymentCount");
+            while (resultSet.next()) {
+                System.out.println(resultSet.getInt("custID") + "   " +
+                        resultSet.getInt("stationID") + "   " +
+                        resultSet.getInt("warehouseID") + "   " +
+						resultSet.getDouble("balance") + "   " +
+						resultSet.getDouble("paid") + "   " +
+						resultSet.getInt("paymentCount"));
+            }
+            resultSet.close();
+			
             System.out.println("Enter Customer Warehouse ID:");
             int wID = reader.nextInt();
             System.out.println("Enter Customer Station ID");
@@ -770,7 +989,20 @@ public class groceryDeliveryApp{
             
             connection.commit();
             
-            
+            statement = connection.createStatement();
+            selectQuery = "SELECT * FROM customers";
+            resultSet = statement.executeQuery(selectQuery);
+			System.out.println("\nAfter transaction");
+			System.out.println("\ncustID  stationID  warehouseID  balance  paid  paymentCount");
+            while (resultSet.next()) {
+                System.out.println(resultSet.getInt("custID") + "   " +
+                        resultSet.getInt("stationID") + "   " +
+                        resultSet.getInt("warehouseID") + "   " +
+						resultSet.getDouble("balance") + "   " +
+						resultSet.getDouble("paid") + "   " +
+						resultSet.getInt("paymentCount"));
+            }
+            resultSet.close();
         }
         
         private void orderStatusTransaction()

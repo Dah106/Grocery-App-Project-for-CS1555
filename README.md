@@ -31,7 +31,7 @@ Please enter the number of line items for the system:
 - once program is run, open new unixs shell and access sqlplus
 - in sqlplus, run program run.sql to view contents of db
 
-########################################################################
+------------------------------------------------------------------------
 
 Modified table schema for Milestone 2:
 
@@ -56,3 +56,23 @@ Please enter the number of orders per customer:
 Please enter the number of items per warehouse: 
 
 Please enter the number of line items per order: 
+
+Running through transactions:
+
+Which transaction would you like to execute:
+
+1 for New Order Transaction
+
+2 for Payment Transaction
+
+3 for Order Status Transaction
+
+4 for Delivery Transaction
+
+5 for Stock Level Transaction
+
+0 to Re-initialize the database
+
+-1 to stop performing transactions
+
+Enter Choice:
