@@ -41,7 +41,13 @@ Program User Input is changed to adapt to Milestone 2 requirement
 
 - in program, allows for anonymity and scalability:	
 
+Running Milestone 2:
+
 * When running the program, createSchema is implemented within it, so there is no need to run it additionally.
+
+As per the requirements, the re-initializition drops all tables and recreates them. The re-initilization keeps cardinality
+
+of the database as specificed in Section 2, but adopts new data. 
 
 * Run run.sql to view contents of all tables.
 
