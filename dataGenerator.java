@@ -584,7 +584,12 @@ public class dataGenerator
 
     //Inclusive - both low and high
     protected int generateRandomNumberWithinRange(int low, int high)
-    {
+    {   
+        if(low == high)
+        {
+            return high;
+        }
+
         Random rGenerator = new Random();
         int result = rGenerator.nextInt(high - low + 1) + low;
         return result;
