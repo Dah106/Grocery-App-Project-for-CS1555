@@ -142,7 +142,7 @@ public class groceryDeliveryApp{
         myDataGenerator.createWarehouseData();
     }
 
-    private void generateInitalData()
+    private void generateInitalData() throws SQLException
     {
     	int counter = 1;
 		try{
@@ -376,10 +376,6 @@ public class groceryDeliveryApp{
 		    System.out.println("Error running the queries. Machine Error: " + Ex.toString());
 
 		} 
-		// catch (ParseException e) {
-		// 	System.out.println("Error parsing the date. Machine Error: " + e.toString());
-
-		// }
 		finally{
 			try {
 				if (statement != null) statement.close();
@@ -443,8 +439,7 @@ public class groceryDeliveryApp{
                 }
                 
                 System.out.println();
-                System.out.println("Thank you for using our services!!!");
-           		
+                System.out.println("Thank you for using our services!!!");    		
 	}
 	
 	private void dropAndCreateTables() throws SQLException
@@ -579,678 +574,761 @@ public class groceryDeliveryApp{
 	
 	private void newOrderTransaction() throws SQLException
 	{
-	    
-	    connection.setAutoCommit(false);//disable auto-commit for each transaction
-	    statement = connection.createStatement(); //create an instance
-	    
-	    statement = connection.createStatement();
-	    String selectQuery = "SELECT * FROM orders";
-	    resultSet = statement.executeQuery(selectQuery);
-	    System.out.println("\nBefore transaction");
-	    System.out.println("orderID  custID  stationID  warehouseID  orderPlaceDate  completed  lineItemCount");
-	    while (resultSet.next()) {
-	        System.out.println(resultSet.getInt("orderID") + "   " +
-	        resultSet.getInt("custID") + "   " +
-	        resultSet.getInt("stationID") + "   " +
-	        resultSet.getDouble("warehouseID") + "   " +
-	        resultSet.getDate("orderPlaceDate") + "   " +
-	        resultSet.getDouble("completed") + "   " +
-	        resultSet.getInt("lineItemCount"));
-	    }
-	    resultSet.close();
-	    
-	    //Scanner reader = new Scanner(System.in);
-	    
-	    System.out.println("Enter Customer Warehouse ID:");
-	    int wID = reader.nextInt();
-	    System.out.println("Enter Customer Station ID");
-	    int sID = reader.nextInt();
-	    System.out.println("Enter Customer ID");
-	    int cID = reader.nextInt();
-	    
-	    System.out.println("Enter total count of all items ordered:");
-	    int totalCount = reader.nextInt();
-	    
-	    int[] itemID = new int[totalCount];
-	    int[] itemCount = new int[totalCount];
-	    
-	    int count = 0;
-	    int id = 0;
-	    for (int i = 0; i < totalCount; i++)
+	    try
 	    {
-	        System.out.println("Enter Item ID:");
-	        id = reader.nextInt();
-	        System.out.println("Enter the number of orders for this item:");
-	            count = reader.nextInt();
-	        
-	        itemID[i] = id;
-	        itemCount[i] = count;
-	    }
-	    
-	    //handle orders table
-	    
-	    orders tempOrder;
-	    int index = 0; //keep track of latest order
-	    
-	    
-	    for (int i = 0; i < myDataGenerator.totalNumOfOrders; i++)
-	    {
-	        
-	        tempOrder  = myDataGenerator.myOrder.get(i);
-	        
-	        if (tempOrder.custID == cID && tempOrder.stationID == sID && tempOrder.warehouseID == wID)
-	        {
-	            index = i; //get latest index in order to generate the latest lineItemID
-	        }
-	    }
-	    
-	    
-	    int orderID = myDataGenerator.myOrder.get(index).orderID + 1;
-	    int custID = cID;
-	    int stationID = sID;
-	    int warehouseID = wID;
-	    long longDate = Calendar.getInstance().getTime().getTime();
-	    
-	    java.sql.Date dateOrderPlaced = new java.sql.Date(longDate);
-	    
-	    int completed = 0;
-	    int lineItemCount = totalCount;
-	    
-	    
-	    
-	    query = "insert into orders values (?,?,?,?,?,?,?)";
-	    prepStatement = connection.prepareStatement(query);
-	    prepStatement.setInt(1, orderID);
-	    prepStatement.setInt(2, custID);
-	    prepStatement.setInt(3, stationID);
-	    prepStatement.setInt(4, warehouseID);
-	    prepStatement.setDate(5, dateOrderPlaced);
-	    prepStatement.setInt(6, completed);
-	    prepStatement.setInt(7, lineItemCount);
-	    
-	    prepStatement.executeUpdate();
-	    
-	    
-	    
-	    tempOrder = new orders();
-	    
-	    tempOrder.orderID = orderID;
-	    tempOrder.custID = custID;
-	    tempOrder.stationID = stationID;
-	    tempOrder.warehouseID = warehouseID;
-	    
-	    tempOrder.orderPlaceDate = longDate;
-	    tempOrder.completed = 0;
-	    tempOrder.lineItemCount = lineItemCount;
-	    
-	    //update order per customer
-	    myDataGenerator.myOrder.add(tempOrder);
-	    myDataGenerator.totalNumOfOrders++;
-	    
-	    
-	    //handle lineItems table
-	    
-	    
-	    lineItems tempLineItem;
-	    index = 0;
-	    int lineItemID = 0;
-	    
-	    for (int i = 0; i < myDataGenerator.totalNumOfLineItems; i++)
-	    {
-	        
-	        tempLineItem  = myDataGenerator.myLineItem.get(i);
-	        
-	        if (tempLineItem.custID == cID && tempLineItem.stationID == sID && tempLineItem.warehouseID == wID)
-	        {
-	            index = i; //get latest index in order to generate the latest lineItemID
-	        }
-	    }
-	    
-	    
-	    
-	    lineItemID = myDataGenerator.myLineItem.get(index).lineItemID + 1;
-	    
-	    
-	    for (int i = 0; i < totalCount; i++)
-	    {
-	        tempLineItem = new lineItems();
-	        tempLineItem.lineItemID  = lineItemID;
-	        tempLineItem.itemID = itemID[i];
-	        tempLineItem.orderID = orderID;
-	        tempLineItem.custID = cID;
-	        tempLineItem.stationID = sID;
-	        tempLineItem.warehouseID = wID;
-	        tempLineItem.quantity = itemCount[i];
-	        
-	        
-	        //find the price of the item.
-	        for (int j = 0; j < myDataGenerator.numOfItems; j++)
-	        {
-	            if (myDataGenerator.myItem.get(j).itemID == itemID[i])
-	            {
-	                tempLineItem.amountDue = itemCount[i] * myDataGenerator.myItem.get(j).price;
-	                break;
-	            }
-	        }
-	        
-	        Calendar c = Calendar.getInstance();
-	        c.setTime(new Date());
-	        c.add(Calendar.DATE, 5); //increment 5 days for delivery date
-	        tempLineItem.deliveryDate = -1;
-	        
-	        
-	        
-	        myDataGenerator.myLineItem.add(tempLineItem);
-	        myDataGenerator.totalNumOfLineItems++;
-	        
-	        query = "insert into lineItems values (?,?,?,?,?,?,?,?,?)";
-	        prepStatement = connection.prepareStatement(query);
-	        
-	        prepStatement.setInt(1, lineItemID);
-	        prepStatement.setInt(2, itemID[i]);
-	        prepStatement.setInt(3, orderID);
-	        prepStatement.setInt(4, cID);
-	        prepStatement.setInt(5, sID);
-	        prepStatement.setInt(6, wID);
-	        prepStatement.setInt(7, itemCount[i]);
-	        prepStatement.setDouble(8, (double) tempLineItem.amountDue);
-	        prepStatement.setNull(9, java.sql.Types.DATE);
-	        
-	        prepStatement.executeUpdate();
-	        lineItemID++;
-	        
-	        //insert lineItem data into table
-	    }
-	    
-	    
-	    
-	    //handle stock table
-	    stock tempStock = new stock();
-	    
-	    for (int i = 0; i < totalCount; i++)
-	    {
-	        for (int j = 0; j < myDataGenerator.totalNumOfStocks; j++)
-	        {
-	            tempStock = myDataGenerator.myStock.get(j);
-	            
-	            if (tempStock.itemID == itemID[i] && tempStock.warehouseID == wID)
-	            {
-	                myDataGenerator.myStock.get(j).numOrders++;
-	                myDataGenerator.myStock.get(j).numSold+= itemCount[i];
-	                myDataGenerator.myStock.get(j).stock-= itemCount[i];
-	                
-	                query = "update stock set stock = ? where itemID = ? AND warehouseid = ?";
-	                prepStatement = connection.prepareStatement(query);
-	                
-	                prepStatement.setInt(1, myDataGenerator.myStock.get(j).stock);
-	                prepStatement.setInt(2, itemID[i]);
-	                prepStatement.setInt(3, wID);
-	                
-	                prepStatement.executeUpdate();
-	                
-	                query = "update stock set numSold = ? where itemID = ? AND warehouseid = ?";
-	                prepStatement = connection.prepareStatement(query);
-	                
-	                prepStatement.setInt(1, myDataGenerator.myStock.get(j).numSold);
-	                prepStatement.setInt(2, itemID[i]);
-	                prepStatement.setInt(3, wID);
-	                
-	                prepStatement.executeUpdate();
-	                
-	                query = "update stock set numOrders = ? where itemID = ? AND warehouseid = ?";
-	                prepStatement = connection.prepareStatement(query);
-	                
-	                prepStatement.setInt(1, myDataGenerator.myStock.get(j).numOrders);
-	                prepStatement.setInt(2, itemID[i]);
-	                prepStatement.setInt(3, wID);
-	                
-	                prepStatement.executeUpdate();
-	                
-	                break;
-	            }
-	        }
-	    }
-	    
-	    connection.commit();
-	    
-	    statement = connection.createStatement();
-	    selectQuery = "SELECT * FROM orders";
-	    resultSet = statement.executeQuery(selectQuery);
-	    System.out.println("\nAfter transaction");
-	    System.out.println("orderID  custID  stationID  warehouseID  orderPlaceDate  completed  lineItemCount");
-	    while (resultSet.next()) {
-	        System.out.println(resultSet.getInt("orderID") + "   " +
-	        resultSet.getInt("custID") + "   " +
-	        resultSet.getInt("stationID") + "   " +
-	        resultSet.getDouble("warehouseID") + "   " +
-	        resultSet.getDate("orderPlaceDate") + "   " +
-	        resultSet.getDouble("completed") + "   " +
-	        resultSet.getInt("lineItemCount"));
-	    }
-	    resultSet.close();
+		    connection.setAutoCommit(false);//disable auto-commit for each transaction
+		    statement = connection.createStatement(); //create an instance
+		    
+		    statement = connection.createStatement();
+		    String selectQuery = "SELECT * FROM orders";
+		    resultSet = statement.executeQuery(selectQuery);
+		    System.out.println("\nBefore transaction");
+		    System.out.println("orderID  custID  stationID  warehouseID  orderPlaceDate  completed  lineItemCount");
+		    while (resultSet.next()) {
+		        System.out.println(resultSet.getInt("orderID") + "   " +
+		        resultSet.getInt("custID") + "   " +
+		        resultSet.getInt("stationID") + "   " +
+		        resultSet.getDouble("warehouseID") + "   " +
+		        resultSet.getDate("orderPlaceDate") + "   " +
+		        resultSet.getDouble("completed") + "   " +
+		        resultSet.getInt("lineItemCount"));
+		    }
+		    resultSet.close();
+		    
+		    //Scanner reader = new Scanner(System.in);
+		    
+		    System.out.println("Enter Customer Warehouse ID:");
+		    int wID = reader.nextInt();
+		    System.out.println("Enter Customer Station ID");
+		    int sID = reader.nextInt();
+		    System.out.println("Enter Customer ID");
+		    int cID = reader.nextInt();
+		    
+		    System.out.println("Enter total count of all items ordered:");
+		    int totalCount = reader.nextInt();
+		    
+		    int[] itemID = new int[totalCount];
+		    int[] itemCount = new int[totalCount];
+		    
+		    int count = 0;
+		    int id = 0;
+		    for (int i = 0; i < totalCount; i++)
+		    {
+		        System.out.println("Enter Item ID:");
+		        id = reader.nextInt();
+		        System.out.println("Enter the number of orders for this item:");
+		            count = reader.nextInt();
+		        
+		        itemID[i] = id;
+		        itemCount[i] = count;
+		    }
+		    
+		    //handle orders table
+		    
+		    orders tempOrder;
+		    int index = 0; //keep track of latest order
+		    
+		    
+		    for (int i = 0; i < myDataGenerator.totalNumOfOrders; i++)
+		    {
+		        
+		        tempOrder  = myDataGenerator.myOrder.get(i);
+		        
+		        if (tempOrder.custID == cID && tempOrder.stationID == sID && tempOrder.warehouseID == wID)
+		        {
+		            index = i; //get latest index in order to generate the latest lineItemID
+		        }
+		    }
+		    
+		    
+		    int orderID = myDataGenerator.myOrder.get(index).orderID + 1;
+		    int custID = cID;
+		    int stationID = sID;
+		    int warehouseID = wID;
+		    long longDate = Calendar.getInstance().getTime().getTime();
+		    
+		    java.sql.Date dateOrderPlaced = new java.sql.Date(longDate);
+		    
+		    int completed = 0;
+		    int lineItemCount = totalCount;
+		    
+		    
+		    
+		    query = "insert into orders values (?,?,?,?,?,?,?)";
+		    prepStatement = connection.prepareStatement(query);
+		    prepStatement.setInt(1, orderID);
+		    prepStatement.setInt(2, custID);
+		    prepStatement.setInt(3, stationID);
+		    prepStatement.setInt(4, warehouseID);
+		    prepStatement.setDate(5, dateOrderPlaced);
+		    prepStatement.setInt(6, completed);
+		    prepStatement.setInt(7, lineItemCount);
+		    
+		    prepStatement.executeUpdate();
+		    
+		    
+		    
+		    tempOrder = new orders();
+		    
+		    tempOrder.orderID = orderID;
+		    tempOrder.custID = custID;
+		    tempOrder.stationID = stationID;
+		    tempOrder.warehouseID = warehouseID;
+		    
+		    tempOrder.orderPlaceDate = longDate;
+		    tempOrder.completed = 0;
+		    tempOrder.lineItemCount = lineItemCount;
+		    
+		    //update order per customer
+		    myDataGenerator.myOrder.add(tempOrder);
+		    myDataGenerator.totalNumOfOrders++;
+		    
+		    
+		    //handle lineItems table
+		    
+		    
+		    lineItems tempLineItem;
+		    index = 0;
+		    int lineItemID = 0;
+		    
+		    for (int i = 0; i < myDataGenerator.totalNumOfLineItems; i++)
+		    {
+		        
+		        tempLineItem  = myDataGenerator.myLineItem.get(i);
+		        
+		        if (tempLineItem.custID == cID && tempLineItem.stationID == sID && tempLineItem.warehouseID == wID)
+		        {
+		            index = i; //get latest index in order to generate the latest lineItemID
+		        }
+		    }
+		    
+		    
+		    
+		    lineItemID = myDataGenerator.myLineItem.get(index).lineItemID + 1;
+		    
+		    
+		    for (int i = 0; i < totalCount; i++)
+		    {
+		        tempLineItem = new lineItems();
+		        tempLineItem.lineItemID  = lineItemID;
+		        tempLineItem.itemID = itemID[i];
+		        tempLineItem.orderID = orderID;
+		        tempLineItem.custID = cID;
+		        tempLineItem.stationID = sID;
+		        tempLineItem.warehouseID = wID;
+		        tempLineItem.quantity = itemCount[i];
+		        
+		        
+		        //find the price of the item.
+		        for (int j = 0; j < myDataGenerator.numOfItems; j++)
+		        {
+		            if (myDataGenerator.myItem.get(j).itemID == itemID[i])
+		            {
+		                tempLineItem.amountDue = itemCount[i] * myDataGenerator.myItem.get(j).price;
+		                break;
+		            }
+		        }
+		        
+		        Calendar c = Calendar.getInstance();
+		        c.setTime(new Date());
+		        c.add(Calendar.DATE, 5); //increment 5 days for delivery date
+		        tempLineItem.deliveryDate = -1;
+		        
+		        
+		        
+		        myDataGenerator.myLineItem.add(tempLineItem);
+		        myDataGenerator.totalNumOfLineItems++;
+		        
+		        query = "insert into lineItems values (?,?,?,?,?,?,?,?,?)";
+		        prepStatement = connection.prepareStatement(query);
+		        
+		        prepStatement.setInt(1, lineItemID);
+		        prepStatement.setInt(2, itemID[i]);
+		        prepStatement.setInt(3, orderID);
+		        prepStatement.setInt(4, cID);
+		        prepStatement.setInt(5, sID);
+		        prepStatement.setInt(6, wID);
+		        prepStatement.setInt(7, itemCount[i]);
+		        prepStatement.setDouble(8, (double) tempLineItem.amountDue);
+		        prepStatement.setNull(9, java.sql.Types.DATE);
+		        
+		        prepStatement.executeUpdate();
+		        lineItemID++;
+		        
+		        //insert lineItem data into table
+		    }
+		    
+		    
+		    
+		    //handle stock table
+		    stock tempStock = new stock();
+		    
+		    for (int i = 0; i < totalCount; i++)
+		    {
+		        for (int j = 0; j < myDataGenerator.totalNumOfStocks; j++)
+		        {
+		            tempStock = myDataGenerator.myStock.get(j);
+		            
+		            if (tempStock.itemID == itemID[i] && tempStock.warehouseID == wID)
+		            {
+		                myDataGenerator.myStock.get(j).numOrders++;
+		                myDataGenerator.myStock.get(j).numSold+= itemCount[i];
+		                myDataGenerator.myStock.get(j).stock-= itemCount[i];
+		                
+		                query = "update stock set stock = ? where itemID = ? AND warehouseid = ?";
+		                prepStatement = connection.prepareStatement(query);
+		                
+		                prepStatement.setInt(1, myDataGenerator.myStock.get(j).stock);
+		                prepStatement.setInt(2, itemID[i]);
+		                prepStatement.setInt(3, wID);
+		                
+		                prepStatement.executeUpdate();
+		                
+		                query = "update stock set numSold = ? where itemID = ? AND warehouseid = ?";
+		                prepStatement = connection.prepareStatement(query);
+		                
+		                prepStatement.setInt(1, myDataGenerator.myStock.get(j).numSold);
+		                prepStatement.setInt(2, itemID[i]);
+		                prepStatement.setInt(3, wID);
+		                
+		                prepStatement.executeUpdate();
+		                
+		                query = "update stock set numOrders = ? where itemID = ? AND warehouseid = ?";
+		                prepStatement = connection.prepareStatement(query);
+		                
+		                prepStatement.setInt(1, myDataGenerator.myStock.get(j).numOrders);
+		                prepStatement.setInt(2, itemID[i]);
+		                prepStatement.setInt(3, wID);
+		                
+		                prepStatement.executeUpdate();
+		                
+		                break;
+		            }
+		        }
+		    }
+		    
+		    connection.commit();
+		    
+		    statement = connection.createStatement();
+		    selectQuery = "SELECT * FROM orders";
+		    resultSet = statement.executeQuery(selectQuery);
+		    System.out.println("\nAfter transaction");
+		    System.out.println("orderID  custID  stationID  warehouseID  orderPlaceDate  completed  lineItemCount");
+		    while (resultSet.next()) {
+		        System.out.println(resultSet.getInt("orderID") + "   " +
+		        resultSet.getInt("custID") + "   " +
+		        resultSet.getInt("stationID") + "   " +
+		        resultSet.getDouble("warehouseID") + "   " +
+		        resultSet.getDate("orderPlaceDate") + "   " +
+		        resultSet.getDouble("completed") + "   " +
+		        resultSet.getInt("lineItemCount"));
+		    }
+		    resultSet.close();
+		}
+		catch(SQLException Ex) {
+		    System.out.println("Error running the queries. Machine Error: " + Ex.toString());
+
+		} 
+		finally{
+			try {
+				if (statement != null) statement.close();
+				if (prepStatement != null) prepStatement.close();
+			} catch (SQLException e) {
+				System.out.println("Cannot close Statement. Machine error: "+e.toString());
+			}
+		}
 	}
 
 	private void paymentTransaction() throws SQLException
-	{
-	    statement = connection.createStatement();
-	    String selectQuery = "SELECT * FROM customers";
-	    resultSet = statement.executeQuery(selectQuery);
-	    System.out.println("\nBefore transaction");
-	    System.out.println("\ncustID  stationID  warehouseID  balance  paid  paymentCount");
-	    while (resultSet.next()) {
-	        System.out.println(resultSet.getInt("custID") + "   " +
-	        resultSet.getInt("stationID") + "   " +
-	        resultSet.getInt("warehouseID") + "   " +
-	        resultSet.getDouble("balance") + "   " +
-	        resultSet.getDouble("paid") + "   " +
-	        resultSet.getInt("paymentCount"));
-	    }
-	    resultSet.close();
-	    
-	    System.out.println("Enter Customer Warehouse ID:");
-	    int wID = reader.nextInt();
-	    System.out.println("Enter Customer Station ID");
-	    int sID = reader.nextInt();
-	    System.out.println("Enter Customer ID");
-	    int cID = reader.nextInt();
-	    
-	    System.out.println("Enter payment amount");
-	    double payment = reader.nextInt();
-	    reader.nextLine();
-	    
-	    
-	    //handle customer table
-	    
-	    customers tempCustomer = new customers();
-	    
-	    
-	    int index = 0;
-	    for(int i = 0; i < myDataGenerator.totalNumOfCustomers; i++)
-	    {
-	        tempCustomer = myDataGenerator.myCustomer.get(i);
-	        if (tempCustomer.custID == cID && tempCustomer.stationID == sID && tempCustomer.warehouseID == wID)
-	        {
-	            myDataGenerator.myCustomer.get(i).balance -= payment;
-	            myDataGenerator.myCustomer.get(i).paid += payment;
-	            myDataGenerator.myCustomer.get(i).paymentCount++;
-	            
-	            index = i;
-	            break;
-	        }
-	    }
-	    
-	    query = "update customers set balance = ? where custId = ? AND warehouseid = ? and stationid = ?";
-	    prepStatement = connection.prepareStatement(query);
-	    
-	    prepStatement.setDouble(1, myDataGenerator.myCustomer.get(index).balance);
-	    prepStatement.setInt(2, cID);
-	    prepStatement.setInt(3, wID);
-	    prepStatement.setInt(4, sID);
-	    
-	    prepStatement.executeUpdate();
-	    
-	    
-	    query = "update customers set paid = ? where custId = ? AND warehouseid = ? and stationid = ?";
-	    prepStatement = connection.prepareStatement(query);
-	    
-	    prepStatement.setDouble(1, myDataGenerator.myCustomer.get(index).paid);
-	    prepStatement.setInt(2, cID);
-	    prepStatement.setInt(3, wID);
-	    prepStatement.setInt(4, sID);
-	    
-	    prepStatement.executeUpdate();
-	    
-	    query = "update customers set paymentCount = ? where custId = ? AND warehouseid = ? and stationid = ?";
-	    prepStatement = connection.prepareStatement(query);
-	    
-	    prepStatement.setDouble(1, myDataGenerator.myCustomer.get(index).paymentCount);
-	    prepStatement.setInt(2, cID);
-	    prepStatement.setInt(3, wID);
-	    prepStatement.setInt(4, sID);
-	    
-	    prepStatement.executeUpdate();
-	    
-	    
-	    //handle distStations table
-	    
-	    distStations tempStation = new distStations();
-	    
-	    for (int i = 0; i < myDataGenerator.totalNumOfStations; i++)
-	    {
-	        tempStation = myDataGenerator.myStation.get(i);
-	        if (tempStation.stationID == sID && tempStation.warehouseID == wID)
-	        {
-	            myDataGenerator.myStation.get(i).salesSum += payment;
-	            
-	            index = i;
-	            break;
-	        }
-	    }
-	    
-	    query = "update distStations set salesSum = ? where stationID = ? AND warehouseid = ?";
-	    prepStatement = connection.prepareStatement(query);
-	    
-	    prepStatement.setDouble(1, myDataGenerator.myStation.get(index).salesSum);
-	    prepStatement.setInt(2, sID);
-	    prepStatement.setInt(3, wID);
-	    
-	    prepStatement.executeUpdate();
-	    
-	    
-	    //handle warehouse table
-	    
-	    warehouses tempWarehouse = new warehouses();
-	    
-	    for (int i = 0; i < myDataGenerator.numOfWarehouses; i++)
-	    {
-	        tempWarehouse = myDataGenerator.myWarehouse.get(i);
-	        
-	        if (tempWarehouse.warehouseID == wID)
-	        {
-	            myDataGenerator.myWarehouse.get(i).salesSum += payment;
-	            index = i;
-	            break;
-	        }
-	    }
-	    
-	    query = "update warehouses set salesSum = ? where warehouseid = ?";
-	    prepStatement = connection.prepareStatement(query);
-	    
-	    prepStatement.setDouble(1, myDataGenerator.myWarehouse.get(index).salesSum);
-	    prepStatement.setInt(2, wID);
-	    
-	    prepStatement.executeUpdate();
-	    
-	    connection.commit();
-	    
-	    statement = connection.createStatement();
-	    selectQuery = "SELECT * FROM customers";
-	    resultSet = statement.executeQuery(selectQuery);
-	    System.out.println("\nAfter transaction");
-	    System.out.println("\ncustID  stationID  warehouseID  balance  paid  paymentCount");
-	    while (resultSet.next()) {
-	        System.out.println(resultSet.getInt("custID") + "   " +
-	        resultSet.getInt("stationID") + "   " +
-	        resultSet.getInt("warehouseID") + "   " +
-	        resultSet.getDouble("balance") + "   " +
-	        resultSet.getDouble("paid") + "   " +
-	        resultSet.getInt("paymentCount"));
-	    }
-	    resultSet.close();
+	{	
+		try
+		{
+			connection.setAutoCommit(false);//disable auto-commit for each transaction
+		    statement = connection.createStatement(); //create an instance
+
+		    statement = connection.createStatement();
+		    String selectQuery = "SELECT * FROM customers";
+		    resultSet = statement.executeQuery(selectQuery);
+		    System.out.println("\nBefore transaction");
+		    System.out.println("\ncustID  stationID  warehouseID  balance  paid  paymentCount");
+		    while (resultSet.next()) {
+		        System.out.println(resultSet.getInt("custID") + "   " +
+		        resultSet.getInt("stationID") + "   " +
+		        resultSet.getInt("warehouseID") + "   " +
+		        resultSet.getDouble("balance") + "   " +
+		        resultSet.getDouble("paid") + "   " +
+		        resultSet.getInt("paymentCount"));
+		    }
+		    resultSet.close();
+		    
+		    System.out.println("Enter Customer Warehouse ID:");
+		    int wID = reader.nextInt();
+		    System.out.println("Enter Customer Station ID");
+		    int sID = reader.nextInt();
+		    System.out.println("Enter Customer ID");
+		    int cID = reader.nextInt();
+		    
+		    System.out.println("Enter payment amount");
+		    double payment = reader.nextDouble();
+		    reader.nextLine();
+		    
+		    
+		    //handle customer table
+		    
+		    customers tempCustomer = new customers();
+		    
+		    
+		    int index = 0;
+		    for(int i = 0; i < myDataGenerator.totalNumOfCustomers; i++)
+		    {
+		        tempCustomer = myDataGenerator.myCustomer.get(i);
+		        if (tempCustomer.custID == cID && tempCustomer.stationID == sID && tempCustomer.warehouseID == wID)
+		        {
+		            myDataGenerator.myCustomer.get(i).balance -= payment;
+		            myDataGenerator.myCustomer.get(i).paid += payment;
+		            myDataGenerator.myCustomer.get(i).paymentCount++;
+		            
+		            index = i;
+		            break;
+		        }
+		    }
+		    
+		    query = "update customers set balance = ? where custId = ? AND warehouseid = ? and stationid = ?";
+		    prepStatement = connection.prepareStatement(query);
+		    
+		    prepStatement.setDouble(1, myDataGenerator.myCustomer.get(index).balance);
+		    prepStatement.setInt(2, cID);
+		    prepStatement.setInt(3, wID);
+		    prepStatement.setInt(4, sID);
+		    
+		    prepStatement.executeUpdate();
+		    
+		    
+		    query = "update customers set paid = ? where custId = ? AND warehouseid = ? and stationid = ?";
+		    prepStatement = connection.prepareStatement(query);
+		    
+		    prepStatement.setDouble(1, myDataGenerator.myCustomer.get(index).paid);
+		    prepStatement.setInt(2, cID);
+		    prepStatement.setInt(3, wID);
+		    prepStatement.setInt(4, sID);
+		    
+		    prepStatement.executeUpdate();
+		    
+		    query = "update customers set paymentCount = ? where custId = ? AND warehouseid = ? and stationid = ?";
+		    prepStatement = connection.prepareStatement(query);
+		    
+		    prepStatement.setDouble(1, myDataGenerator.myCustomer.get(index).paymentCount);
+		    prepStatement.setInt(2, cID);
+		    prepStatement.setInt(3, wID);
+		    prepStatement.setInt(4, sID);
+		    
+		    prepStatement.executeUpdate();
+		    
+		    
+		    //handle distStations table
+		    
+		    distStations tempStation = new distStations();
+		    
+		    for (int i = 0; i < myDataGenerator.totalNumOfStations; i++)
+		    {
+		        tempStation = myDataGenerator.myStation.get(i);
+		        if (tempStation.stationID == sID && tempStation.warehouseID == wID)
+		        {
+		            myDataGenerator.myStation.get(i).salesSum += payment;
+		            
+		            index = i;
+		            break;
+		        }
+		    }
+		    
+		    query = "update distStations set salesSum = ? where stationID = ? AND warehouseid = ?";
+		    prepStatement = connection.prepareStatement(query);
+		    
+		    prepStatement.setDouble(1, myDataGenerator.myStation.get(index).salesSum);
+		    prepStatement.setInt(2, sID);
+		    prepStatement.setInt(3, wID);
+		    
+		    prepStatement.executeUpdate();
+		    
+		    
+		    //handle warehouse table
+		    
+		    warehouses tempWarehouse = new warehouses();
+		    
+		    for (int i = 0; i < myDataGenerator.numOfWarehouses; i++)
+		    {
+		        tempWarehouse = myDataGenerator.myWarehouse.get(i);
+		        
+		        if (tempWarehouse.warehouseID == wID)
+		        {
+		            myDataGenerator.myWarehouse.get(i).salesSum += payment;
+		            index = i;
+		            break;
+		        }
+		    }
+		    
+		    query = "update warehouses set salesSum = ? where warehouseid = ?";
+		    prepStatement = connection.prepareStatement(query);
+		    
+		    prepStatement.setDouble(1, myDataGenerator.myWarehouse.get(index).salesSum);
+		    prepStatement.setInt(2, wID);
+		    
+		    prepStatement.executeUpdate();
+		    
+		    connection.commit();
+		    
+		    statement = connection.createStatement();
+		    selectQuery = "SELECT * FROM customers";
+		    resultSet = statement.executeQuery(selectQuery);
+		    System.out.println("\nAfter transaction");
+		    System.out.println("\ncustID  stationID  warehouseID  balance  paid  paymentCount");
+		    while (resultSet.next()) {
+		        System.out.println(resultSet.getInt("custID") + "   " +
+		        resultSet.getInt("stationID") + "   " +
+		        resultSet.getInt("warehouseID") + "   " +
+		        resultSet.getDouble("balance") + "   " +
+		        resultSet.getDouble("paid") + "   " +
+		        resultSet.getInt("paymentCount"));
+		    }
+		    resultSet.close();
+		}
+	    catch(SQLException Ex) {
+		    System.out.println("Error running the queries. Machine Error: " + Ex.toString());
+
+		} 
+		finally{
+			try {
+				if (statement != null) statement.close();
+				if (prepStatement != null) prepStatement.close();
+			} catch (SQLException e) {
+				System.out.println("Cannot close Statement. Machine error: "+e.toString());
+			}
+		}
 	}
 
-	private void orderStatusTransaction()
+	private void orderStatusTransaction() throws SQLException
 	{
-	    System.out.println("Enter Customer Warehouse ID:");
-	    int wID = reader.nextInt();
-	    System.out.println("Enter Customer Station ID");
-	    int sID = reader.nextInt();
-	    System.out.println("Enter Customer ID");
-	    int cID = reader.nextInt();
-	    reader.nextLine();
-	    
-	    orders tempOrder = new orders();
-	    long maxDate = 0;
-	    int index = 0;
-	    int orderID = 0;
-	    for (int i = 0; i < myDataGenerator.totalNumOfOrders; i++)
-	    {
-	        tempOrder  = myDataGenerator.myOrder.get(i);
-	        
-	        if (tempOrder.custID == cID && tempOrder.stationID == sID && tempOrder.warehouseID == wID && tempOrder.orderPlaceDate > maxDate)
-	        {
-	            maxDate = tempOrder.orderPlaceDate;
-	            orderID = tempOrder.orderID;
-	            index = i; //get index of most recent order place date
-	        }
-	    }
-	    
-	    lineItems tempLineItem = new lineItems();
-	    
-	    for (int i = 0; i < myDataGenerator.totalNumOfLineItems; i++)
-	    {
-	        tempLineItem = myDataGenerator.myLineItem.get(i);
-	        
-	        if(tempLineItem.orderID == orderID && tempLineItem.custID == cID && tempLineItem.stationID == sID && tempLineItem.warehouseID == wID)
-	        {
-	            System.out.println();
-	            System.out.println("Item Number: " + tempLineItem.itemID);
-	            System.out.println("Quantity: " + tempLineItem.quantity);
-	            System.out.println("Amount Due: " + tempLineItem.amountDue);
-	            System.out.println("Delivery Date: " + new java.sql.Date(tempLineItem.deliveryDate));
-	        }
-	    }  
+		try
+		{
+			connection.setAutoCommit(false);//disable auto-commit for each transaction
+		    statement = connection.createStatement(); //create an instance
+
+		    System.out.println("Enter Customer Warehouse ID:");
+		    int wID = reader.nextInt();
+		    System.out.println("Enter Customer Station ID");
+		    int sID = reader.nextInt();
+		    System.out.println("Enter Customer ID");
+		    int cID = reader.nextInt();
+		    reader.nextLine();
+		    
+		    orders tempOrder = new orders();
+		    long maxDate = 0;
+		    int index = 0;
+		    int orderID = 0;
+		    for (int i = 0; i < myDataGenerator.totalNumOfOrders; i++)
+		    {
+		        tempOrder  = myDataGenerator.myOrder.get(i);
+		        
+		        if (tempOrder.custID == cID && tempOrder.stationID == sID && tempOrder.warehouseID == wID && tempOrder.orderPlaceDate > maxDate)
+		        {
+		            maxDate = tempOrder.orderPlaceDate;
+		            orderID = tempOrder.orderID;
+		            index = i; //get index of most recent order place date
+		        }
+		    }
+		    
+		    lineItems tempLineItem = new lineItems();
+		    
+		    for (int i = 0; i < myDataGenerator.totalNumOfLineItems; i++)
+		    {
+		        tempLineItem = myDataGenerator.myLineItem.get(i);
+		        
+		        if(tempLineItem.orderID == orderID && tempLineItem.custID == cID && tempLineItem.stationID == sID && tempLineItem.warehouseID == wID)
+		        {
+		            System.out.println();
+		            System.out.println("Item Number: " + tempLineItem.itemID);
+		            System.out.println("Quantity: " + tempLineItem.quantity);
+		            System.out.println("Amount Due: " + tempLineItem.amountDue);
+		            System.out.println("Delivery Date: " + new java.sql.Date(tempLineItem.deliveryDate));
+		        }
+		    }
+
+		    connection.commit();  
+		}
+		catch(SQLException Ex) {
+		    System.out.println("Error running the queries. Machine Error: " + Ex.toString());
+
+		} 
+		finally{
+			try {
+				if (statement != null) statement.close();
+				if (prepStatement != null) prepStatement.close();
+			} catch (SQLException e) {
+				System.out.println("Cannot close Statement. Machine error: "+e.toString());
+			}
+		}
 	}
 
 	private void deliveryTransaction() throws SQLException
-	{
-	    
-	    System.out.println("Enter id of warehouse: ");
-	    int wID = reader.nextInt();
-	    reader.nextLine();
-	    
-	    statement = connection.createStatement();
-	    String selectQuery = "SELECT * FROM lineItems";
-	    resultSet = statement.executeQuery(selectQuery);
-	    System.out.println("\nBefore transaction");
-	    System.out.println("\nlineitemID  itemID  orderID  custID  stationID  warehouseID quantity amountDue deliveryDate");
-	    while (resultSet.next()) {
-	        System.out.println(resultSet.getInt("lineitemID") + "   " +
-	        resultSet.getInt("itemID") + "   " +
-	        resultSet.getInt("orderID") + "   " +
-	        resultSet.getInt("custID") + "   " +
-	        resultSet.getInt("stationID") + "   " +
-	        resultSet.getInt("warehouseID") + "   " +
-	        resultSet.getInt("quantity") + "   " +
-	        resultSet.getDouble("amountDue") + "   " +
-	        resultSet.getDate("deliveryDate"));
-	    }
-	    resultSet.close();
-	    
-	    warehouses tempWarehouse = new warehouses();
-	    int index = 0;
-	    double tax = 0;
-	    
-	    //get tax rate for the warehouse
-	    for (int i = 0; i < myDataGenerator.numOfWarehouses; i++)
-	    {
-	        tempWarehouse = myDataGenerator.myWarehouse.get(i);
-	        if (tempWarehouse.warehouseID == wID)
-	        {
-	            index = i;
-	            tax = tempWarehouse.salesTax;
-	            break;
-	        }
-	    }
-	    
-	    lineItems tempLineItem = new lineItems();
-	    long longDate = Calendar.getInstance().getTime().getTime();
-	    java.sql.Date dateOrderPlaced = new java.sql.Date(longDate);
-	    
-	    //update lineItems
-	    query = "update lineitems set deliveryDate = ? where warehouseid = ? and deliverydate is null";
-	    prepStatement = connection.prepareStatement(query);
-	    
-	    prepStatement.setDate(1, dateOrderPlaced);
-	    prepStatement.setInt(2, wID);
-	    
-	    prepStatement.executeUpdate();
-	    
-	    int sID = 0;
-	    double discount = 0;
-	    index = 0;
-	    double balance = 0;
-	    
-	    for (int i = 0; i < myDataGenerator.totalNumOfLineItems; i++)
-	    {
-	        tempLineItem = myDataGenerator.myLineItem.get(i);
-	        
-	        if (tempLineItem.warehouseID == wID && tempLineItem.deliveryDate == -1)
-	        {
-	            myDataGenerator.myLineItem.get(i).deliveryDate = longDate;
-	            sID = tempLineItem.stationID;
-	            
-	            customers tempCustomer = new customers();
-	            //get customer discount rate;
-	            for (int j = 0; j < myDataGenerator.totalNumOfCustomers; j++)
-	            {
-	                tempCustomer = myDataGenerator.myCustomer.get(j);
-	                if (tempCustomer.stationID == sID && tempCustomer.warehouseID == wID && tempCustomer.custID == tempLineItem.custID)
-	                {
-	                    discount = tempCustomer.discount;
-	                    index = j;
-	                    break;
-	                }
-	            }
-	            
-	            balance = tempLineItem.amountDue * (1-discount/100) * (1 + tax/100);
-	            myDataGenerator.myCustomer.get(index).balance += balance;
-	            myDataGenerator.myCustomer.get(index).deliveryCount++;
-	            
-	            //update customers
-	            query = "update customers set balance = ? where warehouseid = ? and stationid = ? and custid = ?";
-	            prepStatement = connection.prepareStatement(query);
-	            
-	            prepStatement.setDouble(1, myDataGenerator.myCustomer.get(index).balance);
-	            prepStatement.setInt(2, wID);
-	            prepStatement.setInt(3, sID);
-	            prepStatement.setInt(4, tempLineItem.custID);
-	            
-	            prepStatement.executeUpdate();
-	            
-	            //update customers
-	            query = "update customers set deliveryCount = ? where warehouseid = ? and stationid = ? and custid = ?";
-	            prepStatement = connection.prepareStatement(query);
-	            
-	            prepStatement.setDouble(1, myDataGenerator.myCustomer.get(index).deliveryCount);
-	            prepStatement.setInt(2, wID);
-	            prepStatement.setInt(3, sID);
-	            prepStatement.setInt(4, tempLineItem.custID);
-	            
-	            prepStatement.executeUpdate();
-	            
-	        }
-	    }
-	    
-	    connection.commit();
-	    
-	    statement = connection.createStatement();
-	    selectQuery = "SELECT * FROM lineItems";
-	    resultSet = statement.executeQuery(selectQuery);
-	    System.out.println("\nAfter transaction");
-	    System.out.println("\nlineitemID  itemID  orderID  custID  stationID  warehouseID quantity amountDue deliveryDate");
-	    while (resultSet.next()) {
-	        System.out.println(resultSet.getInt("lineitemID") + "   " +
-	        resultSet.getInt("itemID") + "   " +
-	        resultSet.getInt("orderID") + "   " +
-	        resultSet.getInt("custID") + "   " +
-	        resultSet.getInt("stationID") + "   " +
-	        resultSet.getInt("warehouseID") + "   " +
-	        resultSet.getInt("quantity") + "   " +
-	        resultSet.getDouble("amountDue") + "   " +
-	        resultSet.getDate("deliveryDate"));
-	    }
-	    resultSet.close();
-	    
+	{	
+		try
+		{
+		    connection.setAutoCommit(false);//disable auto-commit for each transaction
+		    statement = connection.createStatement(); //create an instance
+
+		    System.out.println("Enter id of warehouse: ");
+		    int wID = reader.nextInt();
+		    reader.nextLine();
+		    
+		    statement = connection.createStatement();
+		    String selectQuery = "SELECT * FROM lineItems";
+		    resultSet = statement.executeQuery(selectQuery);
+		    System.out.println("\nBefore transaction");
+		    System.out.println("\nlineitemID  itemID  orderID  custID  stationID  warehouseID quantity amountDue deliveryDate");
+		    while (resultSet.next()) {
+		        System.out.println(resultSet.getInt("lineitemID") + "   " +
+		        resultSet.getInt("itemID") + "   " +
+		        resultSet.getInt("orderID") + "   " +
+		        resultSet.getInt("custID") + "   " +
+		        resultSet.getInt("stationID") + "   " +
+		        resultSet.getInt("warehouseID") + "   " +
+		        resultSet.getInt("quantity") + "   " +
+		        resultSet.getDouble("amountDue") + "   " +
+		        resultSet.getDate("deliveryDate"));
+		    }
+		    resultSet.close();
+		    
+		    warehouses tempWarehouse = new warehouses();
+		    int index = 0;
+		    double tax = 0;
+		    
+		    //get tax rate for the warehouse
+		    for (int i = 0; i < myDataGenerator.numOfWarehouses; i++)
+		    {
+		        tempWarehouse = myDataGenerator.myWarehouse.get(i);
+		        if (tempWarehouse.warehouseID == wID)
+		        {
+		            index = i;
+		            tax = tempWarehouse.salesTax;
+		            break;
+		        }
+		    }
+		    
+		    lineItems tempLineItem = new lineItems();
+		    long longDate = Calendar.getInstance().getTime().getTime();
+		    java.sql.Date dateOrderPlaced = new java.sql.Date(longDate);
+		    
+		    //update lineItems
+		    query = "update lineitems set deliveryDate = ? where warehouseid = ? and deliverydate is null";
+		    prepStatement = connection.prepareStatement(query);
+		    
+		    prepStatement.setDate(1, dateOrderPlaced);
+		    prepStatement.setInt(2, wID);
+		    
+		    prepStatement.executeUpdate();
+		    
+		    int sID = 0;
+		    double discount = 0;
+		    index = 0;
+		    double balance = 0;
+		    
+		    for (int i = 0; i < myDataGenerator.totalNumOfLineItems; i++)
+		    {
+		        tempLineItem = myDataGenerator.myLineItem.get(i);
+		        
+		        if (tempLineItem.warehouseID == wID && tempLineItem.deliveryDate == -1)
+		        {
+		            myDataGenerator.myLineItem.get(i).deliveryDate = longDate;
+		            sID = tempLineItem.stationID;
+		            
+		            customers tempCustomer = new customers();
+		            //get customer discount rate;
+		            for (int j = 0; j < myDataGenerator.totalNumOfCustomers; j++)
+		            {
+		                tempCustomer = myDataGenerator.myCustomer.get(j);
+		                if (tempCustomer.stationID == sID && tempCustomer.warehouseID == wID && tempCustomer.custID == tempLineItem.custID)
+		                {
+		                    discount = tempCustomer.discount;
+		                    index = j;
+		                    break;
+		                }
+		            }
+		            
+		            balance = tempLineItem.amountDue * (1-discount/100) * (1 + tax/100);
+		            myDataGenerator.myCustomer.get(index).balance += balance;
+		            myDataGenerator.myCustomer.get(index).deliveryCount++;
+		            
+		            //update customers
+		            query = "update customers set balance = ? where warehouseid = ? and stationid = ? and custid = ?";
+		            prepStatement = connection.prepareStatement(query);
+		            
+		            prepStatement.setDouble(1, myDataGenerator.myCustomer.get(index).balance);
+		            prepStatement.setInt(2, wID);
+		            prepStatement.setInt(3, sID);
+		            prepStatement.setInt(4, tempLineItem.custID);
+		            
+		            prepStatement.executeUpdate();
+		            
+		            //update customers
+		            query = "update customers set deliveryCount = ? where warehouseid = ? and stationid = ? and custid = ?";
+		            prepStatement = connection.prepareStatement(query);
+		            
+		            prepStatement.setDouble(1, myDataGenerator.myCustomer.get(index).deliveryCount);
+		            prepStatement.setInt(2, wID);
+		            prepStatement.setInt(3, sID);
+		            prepStatement.setInt(4, tempLineItem.custID);
+		            
+		            prepStatement.executeUpdate();
+		            
+		        }
+		    }
+		    
+		    connection.commit();
+		    
+		    statement = connection.createStatement();
+		    selectQuery = "SELECT * FROM lineItems";
+		    resultSet = statement.executeQuery(selectQuery);
+		    System.out.println("\nAfter transaction");
+		    System.out.println("\nlineitemID  itemID  orderID  custID  stationID  warehouseID quantity amountDue deliveryDate");
+		    while (resultSet.next()) {
+		        System.out.println(resultSet.getInt("lineitemID") + "   " +
+		        resultSet.getInt("itemID") + "   " +
+		        resultSet.getInt("orderID") + "   " +
+		        resultSet.getInt("custID") + "   " +
+		        resultSet.getInt("stationID") + "   " +
+		        resultSet.getInt("warehouseID") + "   " +
+		        resultSet.getInt("quantity") + "   " +
+		        resultSet.getDouble("amountDue") + "   " +
+		        resultSet.getDate("deliveryDate"));
+		    }
+		    resultSet.close();
+		}
+		catch(SQLException Ex) {
+		    System.out.println("Error running the queries. Machine Error: " + Ex.toString());
+
+		} 
+		finally{
+			try {
+				if (statement != null) statement.close();
+				if (prepStatement != null) prepStatement.close();
+			} catch (SQLException e) {
+				System.out.println("Cannot close Statement. Machine error: "+e.toString());
+			}
+		}
 	}
 
-	private void stockLevelTransaction()
+	private void stockLevelTransaction() throws SQLException
 	{
-	    
-	    System.out.println("Enter Distribution Station ID: ");
-	    int sID = reader.nextInt();
-	    System.out.println("Enter Warehouse ID: ");
-	    int wID = reader.nextInt();
-	    System.out.println("Enter threshold: ");
-	    int threshold = reader.nextInt();
-	    reader.nextLine();
-	    
-	    ArrayList<orders> copy = new ArrayList<orders>(myDataGenerator.myOrder.size());
-	    
-	    orders newOrder = new orders();
-	    for (orders tempOrder: myDataGenerator.myOrder)
-	    {
-	        newOrder = new orders();
-	        newOrder.orderID = tempOrder.orderID;
-	        newOrder.custID = tempOrder.custID;
-	        newOrder.stationID = tempOrder.stationID;
-	        newOrder.warehouseID = tempOrder.warehouseID;
-	        newOrder.orderPlaceDate = tempOrder.orderPlaceDate;
-	        newOrder.completed = tempOrder.completed;
-	        newOrder.lineItemCount = tempOrder.lineItemCount;
-	        
-	        copy.add(newOrder);
-	    }
-	    
-	    Collections.sort(copy);
-	    
-	    lineItems tempLineItem = new lineItems();
-	    int count20 = 0; //keep track of last 20 orders
-	    int countUnder = 0; //number of items under threshold
-	    stock tempStock = new stock();
-	    int[] itemID = new int[myDataGenerator.numOfItems];
-	    
-	    for (int i = 0; i < itemID.length; i++)
-	    {
-	        itemID[i] = -1;
-	    }
-	    
-	    int index = 0;
-	    for (int i = 0; i < copy.size(); i++)
-	    {
-	        if (count20 == 20)
-	        {
-	            break;
+		try
+		{
+		    connection.setAutoCommit(false);//disable auto-commit for each transaction
+		    statement = connection.createStatement(); //create an instance
+
+		    System.out.println("Enter Distribution Station ID: ");
+		    int sID = reader.nextInt();
+		    System.out.println("Enter Warehouse ID: ");
+		    int wID = reader.nextInt();
+		    System.out.println("Enter threshold: ");
+		    int threshold = reader.nextInt();
+		    reader.nextLine();
+		    
+		    ArrayList<orders> copy = new ArrayList<orders>(myDataGenerator.myOrder.size());
+		    
+		    orders newOrder = new orders();
+		    for (orders tempOrder: myDataGenerator.myOrder)
+		    {
+		        newOrder = new orders();
+		        newOrder.orderID = tempOrder.orderID;
+		        newOrder.custID = tempOrder.custID;
+		        newOrder.stationID = tempOrder.stationID;
+		        newOrder.warehouseID = tempOrder.warehouseID;
+		        newOrder.orderPlaceDate = tempOrder.orderPlaceDate;
+		        newOrder.completed = tempOrder.completed;
+		        newOrder.lineItemCount = tempOrder.lineItemCount;
+		        
+		        copy.add(newOrder);
+		    }
+		    
+		    Collections.sort(copy);
+		    
+		    lineItems tempLineItem = new lineItems();
+		    int count20 = 0; //keep track of last 20 orders
+		    int countUnder = 0; //number of items under threshold
+		    stock tempStock = new stock();
+		    int[] itemID = new int[myDataGenerator.numOfItems];
+		    
+		    for (int i = 0; i < itemID.length; i++)
+		    {
+		        itemID[i] = -1;
+		    }
+		    
+		    int index = 0;
+		    for (int i = 0; i < copy.size(); i++)
+		    {
+		        if (count20 == 20)
+		        {
+		            break;
+		        }
+		        
+		        if (copy.get(i).warehouseID == wID && copy.get(i).stationID == sID)
+		        {
+		            for (int j = 0; j < myDataGenerator.totalNumOfLineItems; j++)
+		            {
+		                tempLineItem = myDataGenerator.myLineItem.get(j);
+		                
+		                if (tempLineItem.orderID == copy.get(i).orderID && tempLineItem.custID == copy.get(i).custID && tempLineItem.stationID == copy.get(i).stationID && tempLineItem.warehouseID == wID)
+		                {
+		                    for (int k = 0; k < myDataGenerator.totalNumOfStocks; k++)
+		                    {
+		                        tempStock = myDataGenerator.myStock.get(k);
+		                        if (tempLineItem.itemID == tempStock.itemID && tempStock.warehouseID == wID && tempStock.stock < threshold)
+		                        {
+		                            boolean contains = false;
+		                            for (int m = 0; m < itemID.length; m++)
+		                            {
+		                                if (itemID[m] == tempStock.itemID)
+		                                {
+		                                    contains = true;
+		                                    break;
+		                                }
+		                            }
+		                            
+		                            if (contains)
+		                            {
+		                                break;
+		                            }
+		                            else
+		                            {
+		                                itemID[index] = tempStock.itemID;
+		                                index++;
+		                                countUnder++;
+		                                break;
+		                            }
+		                        }
+		                    }
+		                }
+		            }
+		            count20++;
+		            
+		        }
 	        }
-	        
-	        if (copy.get(i).warehouseID == wID && copy.get(i).stationID == sID)
-	        {
-	            for (int j = 0; j < myDataGenerator.totalNumOfLineItems; j++)
-	            {
-	                tempLineItem = myDataGenerator.myLineItem.get(j);
-	                
-	                if (tempLineItem.orderID == copy.get(i).orderID && tempLineItem.custID == copy.get(i).custID && tempLineItem.stationID == copy.get(i).stationID && tempLineItem.warehouseID == wID)
-	                {
-	                    for (int k = 0; k < myDataGenerator.totalNumOfStocks; k++)
-	                    {
-	                        tempStock = myDataGenerator.myStock.get(k);
-	                        if (tempLineItem.itemID == tempStock.itemID && tempStock.warehouseID == wID && tempStock.stock < threshold)
-	                        {
-	                            boolean contains = false;
-	                            for (int m = 0; m < itemID.length; m++)
-	                            {
-	                                if (itemID[m] == tempStock.itemID)
-	                                {
-	                                    contains = true;
-	                                    break;
-	                                }
-	                            }
-	                            
-	                            if (contains)
-	                            {
-	                                break;
-	                            }
-	                            else
-	                            {
-	                                itemID[index] = tempStock.itemID;
-	                                index++;
-	                                countUnder++;
-	                                break;
-	                            }
-	                        }
-	                    }
-	                }
-	            }
-	            count20++;
-	            
-	        }
-	        
-	        
-	    }
-	    
-	    System.out.println();
-	    System.out.println("Count of number of items under threshold for the given unique distribution station: \n" + countUnder);
+
+	        System.out.println();
+	    	System.out.println("Count of number of items under threshold for the given unique distribution station: \n" + countUnder);
 	        System.out.println();  
+	    }
+	    catch(SQLException Ex) {
+		    System.out.println("Error running the queries. Machine Error: " + Ex.toString());
+
+		} 
+		finally{
+			try {
+				if (statement != null) statement.close();
+				if (prepStatement != null) prepStatement.close();
+			} catch (SQLException e) {
+				System.out.println("Cannot close Statement. Machine error: "+e.toString());
+			}
+		}
 	}
 
 	private void reinitDb() throws SQLException

@@ -21,15 +21,15 @@ public class finalDriver extends Thread
 	//PreparedStatement and statement objects are local too
 
 	public static int initialNumWarehouses = 1;
-	public static int initialNumDistStations = 8;
-	public static int initialNumCustomers = 100;//should be 100
-	public static int initialNumItems = 1000;//should be 1000
+	public static int initialNumDistStations = 2; //should be 8
+	public static int initialNumCustomers = 2;//should be 100
+	public static int initialNumItems = 2;//should be 1000
 
 	//Number of orders per customer: range 1 ~ 50
-	public static int initialNumOrders = 30;//should be 30
+	public static int initialNumOrders = 2;//should be 30
 
 	//Number of items per order: range 3 ~ 10
-	public static int initialNumLineItems = 5;//should be 5
+	public static int initialNumLineItems = 2;//should be 5
 	
 	//3 runs * 5 transactions = 15 threads
 	public static int NUM_OF_THREADS = 15;
@@ -81,24 +81,25 @@ public class finalDriver extends Thread
 
 			Thread[] threadList = new Thread[NUM_OF_THREADS];
 
-			/*
-				Add Jdbc connection config here
-			*/
 
 			// spawn threads
 	      	for (int i = 0; i < NUM_OF_THREADS; i++)
-	      	{
+	      	{	
+
 	          	threadList[i] = new finalDriver(i);
 	          	threadList[i].start();
 	      	}
 
+	      	//System.out.println("complete spawning");
+	      	
 	      	// Start everyone at the same time
 	      	setGreenLight();
 
 	      	// wait for all threads to end
 	      	for (int i = 0; i < NUM_OF_THREADS; i++)
-	      	{
-	      		System.out.println("wait for " + i);
+	      	{	
+
+	      		//System.out.println("wait for " + i);
 	          	threadList[i].join();
 	      	}
 	    }
@@ -115,12 +116,7 @@ public class finalDriver extends Thread
 	{
 		try
 		{	
-			System.out.println("Thread id is: " + myThreadId);
-			while (!getGreenLight())
-			{
-				yield();
-			}
-        
+
 			if(myThreadId == 0 || myThreadId == 5 || myThreadId == 10)
 			{
 				newOrderTransaction();
@@ -301,7 +297,7 @@ public class finalDriver extends Thread
 			// Re-initialize the database back to the original specifications entered by the user
 			//connection.setAutoCommit(false);//disable auto-commit for each transaction
 		    
-		    //set transaction concurrency level to SERIALIZABLE
+		    //set transaction concurrency level to TRANSACTION_READ_COMMITTED
 			//connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
             
             statement = connection.createStatement();
@@ -623,6 +619,9 @@ public class finalDriver extends Thread
 		//Open local connection for each transaction
 	    try{
 
+	    	System.out.println("New order tranx greenlight" + greenLight);
+			while (!getGreenLight()) yield();
+
 	    	// Register the oracle driver.  
 		    DriverManager.registerDriver (new oracle.jdbc.driver.OracleDriver());
 		    
@@ -638,19 +637,22 @@ public class finalDriver extends Thread
 
 		    connection.setAutoCommit(false);//disable auto-commit for each transaction
 		    
-		    //set transaction concurrency level to SERIALIZABLE
-			connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+		    //set transaction concurrency level to TRANSACTION_READ_COMMITTED
+			connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+			
 
-			int wID = generateRandomNumberWithinRange(0, initialNumCustomers - 1);
+			int wID = generateRandomNumberWithinRange(0, initialNumWarehouses - 1);
 			int sID = generateRandomNumberWithinRange(0, initialNumDistStations - 1);
 		    int cID = generateRandomNumberWithinRange(0, initialNumCustomers - 1);
 		    
+		    System.out.println("Thread id is: " + myThreadId);
+
 		    System.out.println("new order tranx wID is: " + wID);
 		    System.out.println("new order tranx sID is: " + sID);
 		    System.out.println("new order tranx cID is: " + cID);
 
 		    //Make the total count of items ordered from 1 ~ 10
-		    int totalCount = generateRandomNumberWithinRange(1, 10);
+		    int totalCount = 2; //hard-code to 2
 
 		    System.out.println("new order tranx total count of items ordered is:" + totalCount);
 		    
@@ -665,6 +667,7 @@ public class finalDriver extends Thread
 		        id = generateRandomNumberWithinRange(0, initialNumItems - 1);
 		        count = generateRandomNumberWithinRange(1, 5);
 		        
+		        System.out.println("item id is: " + id + " , count of this item is: " + count);
 		        itemID[i] = id;
 		        itemCount[i] = count;
 		    }
@@ -853,6 +856,7 @@ public class finalDriver extends Thread
 		        }
 		    }
 		    
+		    //yield();
 		    //Important!
 		    //commit the transaction
 		    connection.commit();
@@ -886,6 +890,9 @@ public class finalDriver extends Thread
 
 		try{
 
+			System.out.println("Payment tranx greenlight" + greenLight);
+			while (!getGreenLight()) yield();
+
 			// Register the oracle driver.  
 		    DriverManager.registerDriver (new oracle.jdbc.driver.OracleDriver());
 		    
@@ -898,16 +905,24 @@ public class finalDriver extends Thread
 
 			connection.setAutoCommit(false);//disable auto-commit for each transaction
 		    
-		    //set transaction concurrency level to SERIALIZABLE
-			connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+		    //set transaction concurrency level to TRANSACTION_READ_COMMITTED
+			connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
 
 		    
-		    int wID = generateRandomNumberWithinRange(0, initialNumCustomers - 1);
+		    int wID = generateRandomNumberWithinRange(0, initialNumWarehouses - 1);
 			int sID = generateRandomNumberWithinRange(0, initialNumDistStations - 1);
 		    int cID = generateRandomNumberWithinRange(0, initialNumCustomers - 1);
 		    
+		    System.out.println("Thread id is: " + myThreadId);
+		    
+		    System.out.println("new order tranx wID is: " + wID);
+		    System.out.println("new order tranx sID is: " + sID);
+		    System.out.println("new order tranx cID is: " + cID);
+
 		    //Make the payment from 1 ~ 1000
 		    double payment = generateRandomNumberWithinRangeInDouble(1000);
+
+		    System.out.println("payment is: " + payment);
 
 		    //handle customer table
 		    
@@ -1042,6 +1057,9 @@ public class finalDriver extends Thread
 		//Open local connection for each transaction
 		try{
 
+			System.out.println("Order status tranx greenlight" + greenLight);
+			while (!getGreenLight()) yield();
+
 			// Register the oracle driver.  
 		    DriverManager.registerDriver (new oracle.jdbc.driver.OracleDriver());
 		    
@@ -1054,10 +1072,10 @@ public class finalDriver extends Thread
 
 			connection.setAutoCommit(false);//disable auto-commit for each transaction
 		    
-		    //set transaction concurrency level to SERIALIZABLE
-			connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+		    //set transaction concurrency level to TRANSACTION_READ_COMMITTED
+			connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
 
-		    int wID = generateRandomNumberWithinRange(0, initialNumCustomers - 1);
+		    int wID = generateRandomNumberWithinRange(0, initialNumWarehouses - 1);
 			int sID = generateRandomNumberWithinRange(0, initialNumDistStations - 1);
 		    int cID = generateRandomNumberWithinRange(0, initialNumCustomers - 1);
 		    
@@ -1126,6 +1144,10 @@ public class finalDriver extends Thread
 
 		try{
 
+			System.out.println("Delivery tranx greenlight" + greenLight);
+			while (!getGreenLight()) yield();
+        
+
 			// Register the oracle driver.  
 		    DriverManager.registerDriver (new oracle.jdbc.driver.OracleDriver());
 		    
@@ -1138,10 +1160,14 @@ public class finalDriver extends Thread
 
 			connection.setAutoCommit(false);//disable auto-commit for each transaction
 	    
-	    	//set transaction concurrency level to SERIALIZABLE
-			connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+	    	//set transaction concurrency level to TRANSACTION_READ_COMMITTED
+			connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
 
-		    int wID = generateRandomNumberWithinRange(0, initialNumCustomers - 1);
+		    int wID = generateRandomNumberWithinRange(0, initialNumWarehouses - 1);
+
+		    System.out.println("Thread id is: " + myThreadId);
+		    
+		    System.out.println("new order tranx wID is: " + wID);
 
 		    warehouses tempWarehouse = new warehouses();
 		    int index = 0;
@@ -1260,6 +1286,9 @@ public class finalDriver extends Thread
 		//Open local connection for each transaction
 		try {
 
+			System.out.println("Stock tranx greenlight" + greenLight);
+			while (!getGreenLight()) yield();
+
 			// Register the oracle driver.  
 		    DriverManager.registerDriver (new oracle.jdbc.driver.OracleDriver());
 		    
@@ -1272,14 +1301,14 @@ public class finalDriver extends Thread
 
 			connection.setAutoCommit(false);//disable auto-commit for each transaction
 	    
-	    	//set transaction concurrency level to SERIALIZABLE
-			connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+	    	//set transaction concurrency level to TRANSACTION_READ_COMMITTED
+			connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
 		    
-		    int wID = generateRandomNumberWithinRange(0, initialNumCustomers - 1);
+		    int wID = generateRandomNumberWithinRange(0, initialNumWarehouses - 1);
 			int sID = generateRandomNumberWithinRange(0, initialNumDistStations - 1);
 
 			//Make the threshold to be the total stock which is 1000
-			int threshold = 1000;
+			int threshold = 200;
 
 		    ArrayList<orders> copy = new ArrayList<orders>(myDataGenerator.myOrder.size());
 		    
@@ -1421,7 +1450,11 @@ public class finalDriver extends Thread
 	}
 
 	//Assign thread id
-	public finalDriver(int threadId) { myThreadId = threadId; }
+	public finalDriver(int threadId) 
+	{ 
+		myThreadId = threadId; 
+		//System.out.println("threadID is -> " + myThreadId);
+	}
 
 	static boolean greenLight = false;
   	static synchronized void setGreenLight() { greenLight = true; }
