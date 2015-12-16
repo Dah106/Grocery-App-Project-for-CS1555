@@ -21,15 +21,15 @@ public class finalDriver extends Thread
 	//PreparedStatement and statement objects are local too
 
 	public static int initialNumWarehouses = 1;
-	public static int initialNumDistStations = 2; //should be 8
-	public static int initialNumCustomers = 2;//should be 100
-	public static int initialNumItems = 2;//should be 1000
+	public static int initialNumDistStations = 8; //should be 8
+	public static int initialNumCustomers = 100;//should be 100
+	public static int initialNumItems = 1000;//should be 1000
 
 	//Number of orders per customer: range 1 ~ 50
-	public static int initialNumOrders = 2;//should be 30
+	public static int initialNumOrders = 10;//make it 10
 
 	//Number of items per order: range 3 ~ 10
-	public static int initialNumLineItems = 2;//should be 5
+	public static int initialNumLineItems = 5;//should be 5
 	
 	//3 runs * 5 transactions = 15 threads
 	public static int NUM_OF_THREADS = 15;
@@ -368,9 +368,8 @@ public class finalDriver extends Thread
 		try{
 		   	//disable auto-commit for each transaction
 		   	connection.setAutoCommit(false);
-		    
-		    //set transaction concurrency level to TRANSACTION_READ_COMMITTED
-		    //setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+	
+		    connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
 
 		    //This is how you can specify the format for the dates you will use
         	SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-mm-dd");
@@ -619,7 +618,7 @@ public class finalDriver extends Thread
 		//Open local connection for each transaction
 	    try{
 
-	    	System.out.println("New order tranx greenlight" + greenLight);
+	    	//System.out.println("New order tranx greenlight" + greenLight);
 			while (!getGreenLight()) yield();
 
 	    	// Register the oracle driver.  
@@ -704,8 +703,8 @@ public class finalDriver extends Thread
 		    query = "insert into orders values (?,?,?,?,?,?,?)";
 		    prepStatement = connection.prepareStatement(query);
 
-		    if(prepStatement == null)System.out.println("new order tranx prepStatement IS NULL");
-		    else System.out.println("new order tranx prepStatement IS NOT NULL");
+		    //if(prepStatement == null)System.out.println("new order tranx prepStatement IS NULL");
+		    //else System.out.println("new order tranx prepStatement IS NOT NULL");
 
 		    prepStatement.setInt(1, orderID);
 		    prepStatement.setInt(2, custID);
@@ -865,7 +864,7 @@ public class finalDriver extends Thread
 		{
 			System.out.println("Creating new order -> Machine Error: " +
 					   Ex.toString());
-			System.out.println("Maybe the transaction does not committed successfully. Not required for this prject to know what is in fact wrong.");
+			System.out.println("Maybe the transaction does not committed successfully. Not required for this project to know what is in fact wrong.");
 		}
 	    finally{
 			try {
@@ -890,7 +889,7 @@ public class finalDriver extends Thread
 
 		try{
 
-			System.out.println("Payment tranx greenlight" + greenLight);
+			//System.out.println("Payment tranx greenlight" + greenLight);
 			while (!getGreenLight()) yield();
 
 			// Register the oracle driver.  
@@ -913,16 +912,16 @@ public class finalDriver extends Thread
 			int sID = generateRandomNumberWithinRange(0, initialNumDistStations - 1);
 		    int cID = generateRandomNumberWithinRange(0, initialNumCustomers - 1);
 		    
-		    System.out.println("Thread id is: " + myThreadId);
+		    // System.out.println("Thread id is: " + myThreadId);
 		    
-		    System.out.println("new order tranx wID is: " + wID);
-		    System.out.println("new order tranx sID is: " + sID);
-		    System.out.println("new order tranx cID is: " + cID);
+		    // System.out.println("new order tranx wID is: " + wID);
+		    // System.out.println("new order tranx sID is: " + sID);
+		    // System.out.println("new order tranx cID is: " + cID);
 
-		    //Make the payment from 1 ~ 1000
-		    double payment = generateRandomNumberWithinRangeInDouble(1000);
+		    //Make the payment from 1 ~ 200
+		    double payment = generateRandomNumberWithinRangeInDouble(200);
 
-		    System.out.println("payment is: " + payment);
+		    //System.out.println("payment is: " + payment);
 
 		    //handle customer table
 		    
@@ -1033,7 +1032,7 @@ public class finalDriver extends Thread
 		{
 			System.out.println("Machine Error: " +
 					   Ex.toString());
-			System.out.println("Maybe the transaction does not committed successfully. Not required for this prject to know what is in fact wrong.");
+			System.out.println("Maybe the transaction does not committed successfully. Not required for this project to know what is in fact wrong.");
 		}
 	    finally{
 			try {
@@ -1057,7 +1056,7 @@ public class finalDriver extends Thread
 		//Open local connection for each transaction
 		try{
 
-			System.out.println("Order status tranx greenlight" + greenLight);
+			//System.out.println("Order status tranx greenlight" + greenLight);
 			while (!getGreenLight()) yield();
 
 			// Register the oracle driver.  
@@ -1119,7 +1118,7 @@ public class finalDriver extends Thread
 		{
 			System.out.println("Machine Error: " +
 					   Ex.toString());
-			System.out.println("Maybe the transaction does not committed successfully. Not required for this prject to know what is in fact wrong.");
+			System.out.println("Maybe the transaction does not committed successfully. Not required for this project to know what is in fact wrong.");
 		}
 	    finally{
 			try {
@@ -1144,7 +1143,7 @@ public class finalDriver extends Thread
 
 		try{
 
-			System.out.println("Delivery tranx greenlight" + greenLight);
+			//System.out.println("Delivery tranx greenlight" + greenLight);
 			while (!getGreenLight()) yield();
         
 
@@ -1165,9 +1164,9 @@ public class finalDriver extends Thread
 
 		    int wID = generateRandomNumberWithinRange(0, initialNumWarehouses - 1);
 
-		    System.out.println("Thread id is: " + myThreadId);
+		    //System.out.println("Thread id is: " + myThreadId);
 		    
-		    System.out.println("new order tranx wID is: " + wID);
+		    //System.out.println("new order tranx wID is: " + wID);
 
 		    warehouses tempWarehouse = new warehouses();
 		    int index = 0;
@@ -1262,7 +1261,7 @@ public class finalDriver extends Thread
 		{
 			System.out.println("Machine Error: " +
 					   Ex.toString());
-			System.out.println("Maybe the transaction does not committed successfully. Not required for this prject to know what is in fact wrong.");
+			System.out.println("Maybe the transaction does not committed successfully. Not required for this project to know what is in fact wrong.");
 		}
 	    finally{
 			try {
@@ -1286,7 +1285,7 @@ public class finalDriver extends Thread
 		//Open local connection for each transaction
 		try {
 
-			System.out.println("Stock tranx greenlight" + greenLight);
+			//System.out.println("Stock tranx greenlight" + greenLight);
 			while (!getGreenLight()) yield();
 
 			// Register the oracle driver.  
@@ -1307,7 +1306,7 @@ public class finalDriver extends Thread
 		    int wID = generateRandomNumberWithinRange(0, initialNumWarehouses - 1);
 			int sID = generateRandomNumberWithinRange(0, initialNumDistStations - 1);
 
-			//Make the threshold to be the total stock which is 1000
+			//Make the threshold to be the total stock which is 200
 			int threshold = 200;
 
 		    ArrayList<orders> copy = new ArrayList<orders>(myDataGenerator.myOrder.size());
@@ -1392,7 +1391,7 @@ public class finalDriver extends Thread
 		    }
 		    
 		    System.out.println();
-		    System.out.println("Count of number of items under threshold for the given unique distribution station: \n" + countUnder);
+		    System.out.println("Count of number of items under threshold " + threshold + " for the given unique distribution station: \n" + countUnder);
 		    System.out.println();  
 
 		    //Important!
@@ -1403,7 +1402,7 @@ public class finalDriver extends Thread
 		{
 			System.out.println("Machine Error: " +
 					   Ex.toString());
-			System.out.println("Maybe the transaction does not committed successfully. Not required for this prject to know what is in fact wrong.");
+			System.out.println("Maybe the transaction does not committed successfully. Not required for this project to know what is in fact wrong.");
 		}
 	    finally{
 			try {

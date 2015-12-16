@@ -86,3 +86,7 @@ Which transaction would you like to execute:
 -1 to stop performing transactions
 
 Enter Choice:
+
+------------------------------------------------------------------------
+
+Descriptions for last milestone (milestone 3) is included in results.txt

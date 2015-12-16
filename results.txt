@@ -1,0 +1,85 @@
+We have fully tested the code and any potential bugs for milestone 1 & 2 are fixed. The table schema is correctly designed and the system is able to preserve consistency for all five transactions.
+
+In the recitation, Nick mentioned the main focus of milestone 3 is to understand how different isolation levels differ in performance and outcome. We also learned a lot when implementing different isolation levels in terms of the results they produced. 
+
+For milestone 3, we use the TRANSACTION.READ_COMMITTED as the only isolation level for the project. The reason is that JDBC’s TRANSACTION_SERIALIZABILITY specifies  that all transactions occur in a completely isolated fashion, meaning as if all transactions in the system were executed serially, one after the other. For instance, if there are two threads running new order transaction at the same time, one transaction will be aborted. This will throw a SQLException that notify developers as such. On the other hand, TRANSACTION_READ_COMMITTED allows transactions running currently while still keeping consistency to some extent. The only exception would be dirty read which is not allowed in TRANSACTION_READ_COMMITTED. Among 10 runs of the program, we have encountered one time where a transaction rollbacked/aborted. Below is the print statement:
+
+Machine Error: java.util.ConcurrentModificationException
+Maybe the transaction does not committed successfully. Not required for this project to know what is in fact wrong.
+
+
+We further discovered that when using TRANSACTION_SERIALIZABILITY for all transactions, the performance is slower and more transactions rollbacked/aborted. One possibility to improve the overall performance while obtaining the advantages using serializability is to use lower isolation level like READ_COMMITTED in read-only transactions, such as order status transaction and stock level transaction.
+
+That’s all for the project of CS1555. Nick has been a great help throughout the semester.
+
+IMPORTANT instructions on how to test the program:
+
+finalDriver.java is the main application that integrate multithreading with the previous functions. Two global variable (strings) ‘userName’ and ‘password’ are left blank for the grader. So just check the source code and add your credentials there accordingly.
+
+javac finalDriver.java
+time java finalDriver
+
+############################################################################################################
+1st Run:
+
+real	1m3.662s = 63.662s
+user	0m26.060s
+sys	0m2.020s
+
+
+2nd Run:
+
+real	1m10.334s = 70.334s
+user	0m28.300s
+sys	0m2.330s
+
+3rd Run:
+
+real	1m5.877s = 65.877s
+user	0m24.240s
+sys	0m2.010s
+
+4th Run:
+
+real	1m3.472s = 63.472s
+user	0m28.170s
+sys	0m2.260s
+
+5th Run:
+
+real	1m7.457s = 67.457s
+user	0m26.530s
+sys	0m1.850s
+
+6th Run:
+
+real	0m58.818s = 58.818s
+user	0m22.950s
+sys	0m2.060s
+
+7th Run:
+
+real	1m4.096s = 64.096s
+user	0m23.890s
+sys	0m2.150s
+
+8th Run:
+
+real	0m58.833s = 58.833s
+user	0m27.360s
+sys	0m2.080s
+
+9th Run:
+
+real	1m7.745s = 67.745s
+user	0m27.370s
+sys	0m2.270s
+
+10th Run:
+
+real	1m4.653s = 64.653s
+user	0m26.750s
+sys	0m1.960s
+
+The average of run time for ten runs shown above is 64.5 seconds
+
